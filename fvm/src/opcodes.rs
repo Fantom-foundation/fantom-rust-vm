@@ -9,4 +9,3 @@ pub enum Opcode {
     SUB,
     DIV
 }
-

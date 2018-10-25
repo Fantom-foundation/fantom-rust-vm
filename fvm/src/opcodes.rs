@@ -7,5 +7,11 @@ pub enum Opcode {
     ADD,
     MUL,
     SUB,
-    DIV
+    DIV,
+    SLOAD,
+    STORE,
+    MLOAD,
+    MSTORE,
+    MSTORE8,
+    MSIZE
 }

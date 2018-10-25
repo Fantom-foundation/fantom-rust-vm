@@ -2,8 +2,11 @@ extern crate ethereum_types;
 #[macro_use]
 extern crate error_chain;
 
-mod opcodes;
 mod errors;
+mod memory;
+mod storage;
+mod opcodes;
+mod vm;
 
 use errors::*;
 

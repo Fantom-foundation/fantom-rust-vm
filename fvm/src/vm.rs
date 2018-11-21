@@ -2,11 +2,11 @@
 
 use bigint::U256;
 use errors::*;
-use memory::{SimpleMemory, Memory};
+use memory::{Memory, SimpleMemory};
 
 pub struct VM {
     registers: [U256; 32],
-    memory: Option<Box<Memory>>
+    memory: Option<Box<Memory>>,
 }
 
 impl VM {
@@ -14,7 +14,7 @@ impl VM {
     pub fn new() -> VM {
         VM {
             registers: [0.into(); 32],
-            memory: None
+            memory: None,
         }
     }
 
@@ -29,7 +29,7 @@ impl Default for VM {
     fn default() -> VM {
         VM {
             registers: [0.into(); 32],
-            memory: Some(Box::new(SimpleMemory::new()))
+            memory: Some(Box::new(SimpleMemory::new())),
         }
     }
 }

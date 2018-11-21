@@ -13,5 +13,5 @@ pub enum Opcode {
     MLOAD,
     MSTORE,
     MSTORE8,
-    MSIZE
+    MSIZE,
 }

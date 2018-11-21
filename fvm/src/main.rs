@@ -5,8 +5,8 @@ extern crate bigint;
 
 mod errors;
 mod memory;
-mod storage;
 mod opcodes;
+mod storage;
 mod vm;
 
 use errors::*;

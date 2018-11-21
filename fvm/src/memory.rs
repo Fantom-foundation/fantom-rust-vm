@@ -21,7 +21,7 @@ pub struct SimpleMemory {
 
 impl SimpleMemory {
     /// Creates and returns a new SimpleMemory
-    /// 
+    ///
     /// # Example
     /// ```
     /// use memory::SimpleMemory;
@@ -47,7 +47,9 @@ impl Memory for SimpleMemory {
         self.memory[index..index + 32]
             .iter()
             .map(|v| v.clone())
-            .collect::<Vec<u8>>().as_slice().into()
+            .collect::<Vec<u8>>()
+            .as_slice()
+            .into()
     }
 
     /// Reads a single byte at the provided index
@@ -80,9 +82,7 @@ mod tests {
 
     fn gen_simple_mem_with_data() -> SimpleMemory {
         let test_value = U256::from(5000);
-        let mut mem = SimpleMemory {
-            memory: vec![0; 32]
-        };
+        let mut mem = SimpleMemory { memory: vec![0; 32] };
         test_value.to_big_endian(&mut mem.memory);
         mem
     }

@@ -1,5 +1,5 @@
 //! Module for the non-volatile memory that is maintained between transactions and holds account data
-use ethereum_types::U256;
+use bigint::U256;
 use errors::*;
 
 /// Non-volatile storage Trait, corresponds to Ethereum Storage. Can be backed by multiple implementations if desired.

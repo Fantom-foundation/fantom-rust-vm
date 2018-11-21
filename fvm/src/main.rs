@@ -1,6 +1,7 @@
-extern crate ethereum_types;
 #[macro_use]
 extern crate error_chain;
+
+extern crate bigint;
 
 mod errors;
 mod memory;

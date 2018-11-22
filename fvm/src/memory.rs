@@ -17,6 +17,7 @@ pub trait Memory {
 /// Simple implementation of memory using Rust Vecs
 pub struct SimpleMemory {
     memory: Vec<u8>,
+    expansions: usize
 }
 
 impl SimpleMemory {
@@ -28,13 +29,17 @@ impl SimpleMemory {
     /// let mem = SimpleMemory::new();
     /// ```
     pub fn new() -> SimpleMemory {
-        SimpleMemory { memory: Vec::new() }
+        SimpleMemory { 
+            memory: Vec::new(),
+            expansions: 0 
+        }
     }
 
     // Resizes the memory vector if needed. This will be called automatically
     fn resize_if_needed(&mut self, index: usize) -> Result<()> {
         if index >= self.memory.len() {
             self.memory.resize(index + 1, 0);
+            self.expansions += 1;
         }
         Ok(())
     }
@@ -57,7 +62,7 @@ impl Memory for SimpleMemory {
         self.memory[index.as_usize()].clone()
     }
 
-    /// Writes a `word` at the specified index. This will resize extend the capacity
+    /// Writes a `word` at the specified index. This will resize the capacity
     /// if needed, and will overwrite any existing bytes if there is overlap.
     fn write(&mut self, index: U256, value: U256) -> Result<()> {
         let index = index.as_usize();
@@ -69,8 +74,11 @@ impl Memory for SimpleMemory {
         Ok(())
     }
 
+    /// Writes a single byte to the memory. This will resize the memory if
+    /// needed.
     fn write_byte(&mut self, index: U256, value: u8) -> Result<()> {
         let index = index.as_usize();
+        self.resize_if_needed(index)?;
         self.memory[index] = value;
         Ok(())
     }
@@ -82,7 +90,10 @@ mod tests {
 
     fn gen_simple_mem_with_data() -> SimpleMemory {
         let test_value = U256::from(5000);
-        let mut mem = SimpleMemory { memory: vec![0; 32] };
+        let mut mem = SimpleMemory { 
+            memory: vec![0; 32],
+            expansions: 0, 
+        };
         test_value.to_big_endian(&mut mem.memory);
         mem
     }

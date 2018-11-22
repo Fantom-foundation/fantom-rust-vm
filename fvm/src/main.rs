@@ -2,9 +2,11 @@
 extern crate error_chain;
 
 extern crate bigint;
+extern crate trie;
 
 mod errors;
 mod memory;
+mod account;
 mod opcodes;
 mod storage;
 mod vm;

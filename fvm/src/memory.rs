@@ -1,5 +1,6 @@
 //! Module for the volatile memory that is cleared between transactions
 use bigint::{M256, U256};
+
 use errors::*;
 
 /// A volatile area of memory that is created per-transaction. The follow constraints must be observed when interacting with it:

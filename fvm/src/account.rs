@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use bigint::{U256, M256};
+use bigint::{U256};
 
 use storage::Storage;
 

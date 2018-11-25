@@ -1,10 +1,7 @@
-#[macro_use]
-extern crate error_chain;
-
 extern crate bigint;
 extern crate trie;
 
-#[macro_use] extern crate log;
+extern crate log;
 extern crate env_logger;
 
 mod memory;

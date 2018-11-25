@@ -31,6 +31,7 @@ impl VM {
         self
     }
 
+    /// Starts the execution loop for the VM
     pub fn execute(&mut self) -> Result<()> {
         loop {
             match self.execute_one() {
@@ -43,6 +44,8 @@ impl VM {
             };
         }
     }
+
+    /// Executes the next instruction only
     pub fn execute_one(&mut self) -> Result<()> {
         let opcode = Opcode::from(&self.code[self.pc]);
         match opcode {
@@ -75,16 +78,23 @@ impl VM {
             }
             Opcode::SDIV => {
                 self.stack_pointer -= 1;
-                let s1: M256 = self.registers[self.stack_pointer].into();
-                let s2: M256 = self.registers[self.stack_pointer - 1].into();
-                let s1 = MI256(Sign::Minus, s1);
-                let s2 = MI256(Sign::Minus, s2);
+                let s1 = MI256(Sign::Minus, M256(self.registers[self.stack_pointer]));
+                let s2 = MI256(Sign::Minus, M256(self.registers[self.stack_pointer - 1]));
                 let result = s1 / s2;
                 let result: M256 = result.into();
                 self.registers[self.stack_pointer - 1] = result.into();
                 self.pc += 1;
             },
-            Opcode::SMOD => unimplemented!(),
+            Opcode::SMOD => {
+                self.stack_pointer -= 1;
+                let s1 = MI256(Sign::Minus, M256(self.registers[self.stack_pointer]));
+                let s2 = MI256(Sign::Minus, M256(self.registers[self.stack_pointer - 1]));
+                let result = s1 / s2;
+                let result: M256 = result.into();
+                let result: U256 = result.into();
+                self.registers[self.stack_pointer - 1] = result;
+                self.pc += 1;
+            },
             Opcode::MOD => {
                 self.stack_pointer -= 1;
                 let result = self.registers[self.stack_pointer] % self.registers[self.stack_pointer - 1];
@@ -115,10 +125,33 @@ impl VM {
             Opcode::SGT => unimplemented!(),
             Opcode::EQ => unimplemented!(),
             Opcode::ISZERO => unimplemented!(),
-            Opcode::AND => unimplemented!(),
-            Opcode::OR => unimplemented!(),
-            Opcode::XOR => unimplemented!(),
-            Opcode::NOT => unimplemented!(),
+            Opcode::AND => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                let s2 = self.registers[self.stack_pointer - 1];
+                self.registers[self.stack_pointer - 1] = s1 & s2;
+                self.pc += 2;
+            }
+            Opcode::OR => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                let s2 = self.registers[self.stack_pointer - 1];
+                self.registers[self.stack_pointer - 1] = s1 | s2;
+                self.pc += 2;
+            },
+            Opcode::XOR => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                let s2 = self.registers[self.stack_pointer - 1];
+                self.registers[self.stack_pointer - 1] = s1 ^ s2;
+                self.pc += 2;
+            },
+            Opcode::NOT => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                self.registers[self.stack_pointer] = !s1;
+                self.pc += 1;
+            },
             Opcode::BYTE => unimplemented!(),
             Opcode::SLOAD => unimplemented!(),
             Opcode::STORE => unimplemented!(),
@@ -139,10 +172,7 @@ impl VM {
         Ok(())
     }
 
-    fn extract_opcode(&self, byte: &u8) -> Opcode {
-        Opcode::from(byte)
-    }
-
+    /// Utility function to print the values of a range of registers
     pub fn print_registers(&self, start: usize, end: usize) {
         println!("Registers are: ");
         for register in self.registers[start..end].iter() {
@@ -258,6 +288,19 @@ mod tests {
     }
 
     #[test]
+    fn test_smod_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x07];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
+
+    #[test]
     fn test_mod_opcode() {
         let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x06];
         let mut vm = VM::new(default_code);
@@ -296,4 +339,42 @@ mod tests {
         assert_eq!(vm.registers[0], 0.into());
     }
 
+    #[test]
+    fn test_bitwise_and_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x10];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 10.into());
+    }
+
+    #[test]
+    fn test_bitwise_or_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x11];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 11.into());
+    }
+
+    #[test]
+    fn test_bitwise_xor_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x12];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
 }

@@ -1,16 +1,16 @@
 //! Module that contains the VM that executes bytecode
 
-use bigint::U256;
+use bigint::{M256, MI256, U256};
+use errors::{Result, VMError};
 use memory::{Memory, SimpleMemory};
 use opcodes::Opcode;
-use errors::{Result, VMError};
 
 pub struct VM {
     registers: [U256; 1024],
     memory: Option<Box<Memory>>,
     code: Vec<u8>,
     pc: usize,
-    stack_pointer: usize
+    stack_pointer: usize,
 }
 
 impl VM {
@@ -21,7 +21,7 @@ impl VM {
             memory: None,
             stack_pointer: 0,
             code: code,
-            pc: 0
+            pc: 0,
         }
     }
 
@@ -34,7 +34,9 @@ impl VM {
     pub fn execute(&mut self) -> Result<()> {
         loop {
             match self.execute_one() {
-                Ok(_) => { continue; },
+                Ok(_) => {
+                    continue;
+                }
                 Err(e) => {
                     return Err(e);
                 }
@@ -48,39 +50,74 @@ impl VM {
                 return Ok(());
             }
             Opcode::ADD => {
-                println!("Executing ADD");
+                self.stack_pointer -= 1;
                 let result = self.registers[self.stack_pointer] + self.registers[self.stack_pointer - 1];
                 self.registers[self.stack_pointer - 1] = result;
-                self.stack_pointer -= 1;
                 self.pc += 1;
             }
             Opcode::MUL => {
+                self.stack_pointer -= 1;
                 let result = self.registers[self.stack_pointer] * self.registers[self.stack_pointer - 1];
                 self.registers[self.stack_pointer - 1] = result;
                 self.pc += 1;
-                self.stack_pointer -= 1;
             }
             Opcode::SUB => {
+                self.stack_pointer -= 1;
                 let result = self.registers[self.stack_pointer] - self.registers[self.stack_pointer - 1];
                 self.registers[self.stack_pointer - 1] = result;
                 self.pc += 1;
-                self.stack_pointer -= 1;
             }
             Opcode::DIV => {
+                self.stack_pointer -= 1;
                 let result = self.registers[self.stack_pointer] / self.registers[self.stack_pointer - 1];
                 self.registers[self.stack_pointer - 1] = result;
                 self.pc += 1;
-                self.stack_pointer -= 1;
             }
-            Opcode::PUSH1 => {
-                let value = self.code[self.pc + 1];
-                println!("Executing PUSH1 with {:?}", value);
-                self.registers[self.stack_pointer] = value.into();
-                println!("SP1 is: {:?}", self.stack_pointer);
-                self.stack_pointer += 1;
-                println!("SP2 is: {:?}", self.stack_pointer);
+            Opcode::SDIV => unimplemented!(),
+            Opcode::SMOD => unimplemented!(),
+            Opcode::MOD => {
+                self.stack_pointer -= 1;
+                let result = self.registers[self.stack_pointer] % self.registers[self.stack_pointer - 1];
+                self.registers[self.stack_pointer - 1] = result;
+                self.pc += 1;
+            }
+            Opcode::LT => {
+                self.stack_pointer -= 1;
+                if self.registers[self.stack_pointer] > self.registers[self.stack_pointer - 1] {
+                    self.registers[self.stack_pointer - 1] = 1.into();
+                } else {
+                    self.registers[self.stack_pointer - 1] = 0.into();
+                }
                 self.pc += 2;
-                self.print_registers(0, 10);
+            }
+            Opcode::GT => {
+                self.stack_pointer -= 1;
+                if self.registers[self.stack_pointer] < self.registers[self.stack_pointer - 1] {
+                    self.registers[self.stack_pointer - 1] = 1.into();
+                } else {
+                    self.registers[self.stack_pointer - 1] = 0.into();
+                }
+                self.pc += 2;
+            }
+            Opcode::SLT => unimplemented!(),
+            Opcode::SGT => unimplemented!(),
+            Opcode::EQ => unimplemented!(),
+            Opcode::ISZERO => unimplemented!(),
+            Opcode::AND => unimplemented!(),
+            Opcode::OR => unimplemented!(),
+            Opcode::XOR => unimplemented!(),
+            Opcode::NOT => unimplemented!(),
+            Opcode::BYTE => unimplemented!(),
+            Opcode::SLOAD => unimplemented!(),
+            Opcode::STORE => unimplemented!(),
+            Opcode::MLOAD => unimplemented!(),
+            Opcode::MSTORE => unimplemented!(),
+            Opcode::MSTORE8 => unimplemented!(),
+            Opcode::MSIZE => unimplemented!(),
+            Opcode::PUSH1 => {
+                self.registers[self.stack_pointer] = self.code[self.pc + 1].into();
+                self.stack_pointer += 1;
+                self.pc += 2;
             }
             _ => {
                 return Err(VMError::UnknownOpcodeError);
@@ -110,7 +147,7 @@ impl Default for VM {
             memory: Some(Box::new(SimpleMemory::new())),
             stack_pointer: 0,
             code: vec![],
-            pc: 0
+            pc: 0,
         }
     }
 }
@@ -139,7 +176,7 @@ mod tests {
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());
-        assert_eq!(vm.registers[0], 0x0a.into());
+        assert_eq!(vm.registers[0], 10.into());
     }
 
     #[test]
@@ -154,4 +191,83 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(vm.registers[0], 20.into());
     }
+
+    #[test]
+    fn test_sub_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xa, 0x03];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 0.into());
+    }
+
+    #[test]
+    fn test_mul_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xa, 0x02];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 100.into());
+    }
+
+    #[test]
+    fn test_div_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xa, 0x04];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
+
+    #[test]
+    fn test_mod_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x06];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
+
+    #[test]
+    fn test_lt_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x0a];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
+
+    #[test]
+    fn test_gt_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x0b];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 0.into());
+    }
+
 }

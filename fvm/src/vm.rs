@@ -1,6 +1,6 @@
 //! Module that contains the VM that executes bytecode
 
-use bigint::{M256, MI256, U256};
+use bigint::{M256, MI256, U256, Sign};
 use errors::{Result, VMError};
 use memory::{Memory, SimpleMemory};
 use opcodes::Opcode;
@@ -73,7 +73,17 @@ impl VM {
                 self.registers[self.stack_pointer - 1] = result;
                 self.pc += 1;
             }
-            Opcode::SDIV => unimplemented!(),
+            Opcode::SDIV => {
+                self.stack_pointer -= 1;
+                let s1: M256 = self.registers[self.stack_pointer].into();
+                let s2: M256 = self.registers[self.stack_pointer - 1].into();
+                let s1 = MI256(Sign::Minus, s1);
+                let s2 = MI256(Sign::Minus, s2);
+                let result = s1 / s2;
+                let result: M256 = result.into();
+                self.registers[self.stack_pointer - 1] = result.into();
+                self.pc += 1;
+            },
             Opcode::SMOD => unimplemented!(),
             Opcode::MOD => {
                 self.stack_pointer -= 1;
@@ -99,7 +109,9 @@ impl VM {
                 }
                 self.pc += 2;
             }
-            Opcode::SLT => unimplemented!(),
+            Opcode::SLT => {
+                unimplemented!()
+            },
             Opcode::SGT => unimplemented!(),
             Opcode::EQ => unimplemented!(),
             Opcode::ISZERO => unimplemented!(),
@@ -228,6 +240,20 @@ mod tests {
         assert!(result.is_ok());
         let result = vm.execute_one();
         assert!(result.is_ok());
+        assert_eq!(vm.registers[0], 1.into());
+    }
+
+    #[test]
+    fn test_sdiv_opcode() {
+        let default_code = vec![0x60, 0xa, 0x60, 0xa, 0x05];
+        let mut vm = VM::new(default_code);
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        vm.print_registers(0, 10);
         assert_eq!(vm.registers[0], 1.into());
     }
 

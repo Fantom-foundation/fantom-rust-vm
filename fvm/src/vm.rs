@@ -315,7 +315,7 @@ mod tests {
 
     #[test]
     fn test_lt_opcode() {
-        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x0a];
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x10];
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());
@@ -328,7 +328,7 @@ mod tests {
 
     #[test]
     fn test_gt_opcode() {
-        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x0b];
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x11];
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());
@@ -341,7 +341,7 @@ mod tests {
 
     #[test]
     fn test_bitwise_and_opcode() {
-        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x10];
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x16];
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());
@@ -354,7 +354,7 @@ mod tests {
 
     #[test]
     fn test_bitwise_or_opcode() {
-        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x11];
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x17];
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());
@@ -367,7 +367,7 @@ mod tests {
 
     #[test]
     fn test_bitwise_xor_opcode() {
-        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x12];
+        let default_code = vec![0x60, 0xa, 0x60, 0xb, 0x18];
         let mut vm = VM::new(default_code);
         let result = vm.execute_one();
         assert!(result.is_ok());

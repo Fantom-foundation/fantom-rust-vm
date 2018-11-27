@@ -1,6 +1,6 @@
 //! Module for the volatile memory that is cleared between transactions
-use bigint::{M256, U256};
-
+use bigint::{U256, M256};
+use std;
 use errors::*;
 
 /// A volatile area of memory that is created per-transaction. The follow constraints must be observed when interacting with it:
@@ -9,13 +9,16 @@ use errors::*;
 /// 3. Any expansion of the Memory area costs gas, and the cost scales quadratically
 /// 4. Expansion is done by the word, so 256-bits at a time
 pub trait Memory {
-    fn read(&self, index: U256) -> M256;
-    fn read_byte(&self, index: U256) -> u8;
-    fn write(&mut self, index: U256, value: U256) -> Result<()>;
-    fn write_byte(&mut self, index: U256, value: u8) -> Result<()>;
+    fn read(&self, index: M256) -> M256;
+    fn read_byte(&self, index: M256) -> u8;
+    fn write(&mut self, index: M256, value: M256) -> Result<()>;
+    fn write_byte(&mut self, index: M256, value: u8) -> Result<()>;
+    fn size(&self) -> M256;
+    fn print(&self) -> String;
 }
 
 /// Simple implementation of memory using Rust Vecs
+#[derive(Debug, PartialEq)]
 pub struct SimpleMemory {
     memory: Vec<u8>,
     expansions: usize
@@ -48,7 +51,7 @@ impl SimpleMemory {
 
 impl Memory for SimpleMemory {
     /// Reads a `word` at the provided index
-    fn read(&self, index: U256) -> M256 {
+    fn read(&self, index: M256) -> M256 {
         let index = index.as_usize();
         self.memory[index..index + 32]
             .iter()
@@ -59,17 +62,17 @@ impl Memory for SimpleMemory {
     }
 
     /// Reads a single byte at the provided index
-    fn read_byte(&self, index: U256) -> u8 {
+    fn read_byte(&self, index: M256) -> u8 {
         self.memory[index.as_usize()].clone()
     }
 
     /// Writes a `word` at the specified index. This will resize the capacity
     /// if needed, and will overwrite any existing bytes if there is overlap.
-    fn write(&mut self, index: U256, value: U256) -> Result<()> {
+    fn write(&mut self, index: M256, value: M256) -> Result<()> {
         let index = index.as_usize();
         self.resize_if_needed(index)?;
         for i in 0..32 {
-            let idx = U256::from(index + i);
+            let idx = M256::from(index + i);
             self.write_byte(idx, value.index(i))?;
         }
         Ok(())
@@ -77,11 +80,19 @@ impl Memory for SimpleMemory {
 
     /// Writes a single byte to the memory. This will resize the memory if
     /// needed.
-    fn write_byte(&mut self, index: U256, value: u8) -> Result<()> {
+    fn write_byte(&mut self, index: M256, value: u8) -> Result<()> {
         let index = index.as_usize();
         self.resize_if_needed(index)?;
         self.memory[index] = value;
         Ok(())
+    }
+
+    fn size(&self) -> M256 {
+        M256::from(self.memory.len())
+    }
+
+    fn print(&self) -> String {
+        String::from(format!("{:#?}", self.memory))
     }
 }
 

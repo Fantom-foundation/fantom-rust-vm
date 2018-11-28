@@ -119,7 +119,29 @@ impl VM {
                     self.registers[self.stack_pointer - 2] = 0.into();
                 }
             }
-            Opcode::EXP => unimplemented!(),
+            Opcode::EXP => {
+                let s1 = self.registers[self.stack_pointer];
+                let s2 = self.registers[self.stack_pointer - 1];
+                if s1 > M256::from(32) {
+                    self.registers[self.stack_pointer - 1] = s2;
+                } else {
+                    let mut ret = M256::zero();
+                    let len: usize = s1.as_usize();
+                    let t: usize = 8 * (len + 1) - 1;
+                    let t_bit_mask = M256::one() << t;
+                    let t_value = (s2 & t_bit_mask) >> t;
+                    for i in 0..256 {
+                        let bit_mask = M256::one() << i;
+                        let i_value = (s2 & bit_mask) >> i;
+                        if i <= t {
+                            ret = ret + (i_value << i);
+                        } else {
+                            ret = ret + (t_value << i);
+                        }
+                    }
+                    self.registers[self.stack_pointer - 1] = s2;
+                }
+            }
             Opcode::SIGNEXTEND => unimplemented!(),
             Opcode::LT => {
                 self.stack_pointer -= 1;
@@ -218,14 +240,24 @@ impl VM {
             }
             Opcode::SLOAD => unimplemented!(),
             Opcode::STORE => unimplemented!(),
-            Opcode::MLOAD => unimplemented!(),
+            Opcode::MLOAD => {
+                self.stack_pointer -= 1;
+                let offset = self.registers[self.stack_pointer];
+                if let Some(ref mut mem) = self.memory {
+                    self.registers[self.stack_pointer] = mem.read(offset);
+                } else {
+                    return Err(VMError::MemoryError);
+                }
+            }
             Opcode::MSTORE => {
                 self.stack_pointer -= 1;
                 let offset = self.registers[self.stack_pointer];
                 let value = self.registers[self.stack_pointer - 1];
-                println!("Storing {:?} at {:?}", value, offset);
                 if let Some(ref mut mem) = self.memory {
-                    mem.write(value, offset)?;
+                    println!("Storing value: {:?} offset: {:?}", value, offset);
+                    mem.write(offset, value)?;
+                } else {
+                    return Err(VMError::MemoryError);
                 }
             }
             Opcode::MSTORE8 => {
@@ -243,10 +275,11 @@ impl VM {
                     return Err(VMError::MemoryError);
                 }
             }
-            Opcode::PUSH1 => {
-                self.registers[self.stack_pointer] = M256::from(self.code[self.pc + 1] as i32);
+            Opcode::PUSH(bytes) => {
+                let range = &self.code[self.pc + 1..self.pc + 1 + bytes];
+                self.registers[self.stack_pointer] = M256::from(range);
                 self.stack_pointer += 1;
-                self.pc += 2;
+                self.pc += bytes + 1;
             }
             _ => {
                 return Err(VMError::UnknownOpcodeError);
@@ -500,5 +533,33 @@ mod tests {
         assert!(result.is_ok());
         let memory = vm.memory.unwrap();
         assert!(memory.size() > 0.into());
+    }
+
+    #[test]
+    fn test_memstore8_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x53];
+        let mut vm = VM::new(default_code).with_simple_memory();
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let memory = vm.memory.unwrap();
+        assert!(memory.size() > 0.into());
+    }
+
+    #[test]
+    fn test_memload_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x52, 0x01, 0x51];
+        let mut vm = VM::new(default_code).with_simple_memory();
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        println!("Memory: {:?}", vm.memory.unwrap().print());
+        assert_eq!(vm.registers[0], M256::from(5));
     }
 }

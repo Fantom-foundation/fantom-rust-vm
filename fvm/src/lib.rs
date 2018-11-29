@@ -10,8 +10,4 @@ mod opcodes;
 mod storage;
 mod vm;
 mod errors;
-
-fn main() {
-    env_logger::init();
-    println!("Hello!");
-}
+mod eth_log;

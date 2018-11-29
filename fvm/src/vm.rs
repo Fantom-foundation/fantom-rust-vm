@@ -1,33 +1,49 @@
 //! Module that contains the VM that executes bytecode
 
-use bigint::{Sign, M256, MI256, U256};
+use bigint::{Address, H256, M256, MI256};
 use errors::{Result, VMError};
+use eth_log::Log;
 use memory::{Memory, SimpleMemory};
 use opcodes::Opcode;
 
 pub struct VM {
+    address: Option<Address>,
     registers: [M256; 1024],
     memory: Option<Box<Memory>>,
     code: Vec<u8>,
     pc: usize,
     stack_pointer: usize,
+    logs: Vec<Log>,
 }
 
 impl VM {
     /// Creates and returns a new VM
     pub fn new(code: Vec<u8>) -> VM {
         VM {
+            address: None,
             registers: [0.into(); 1024],
             memory: None,
             stack_pointer: 0,
             code: code,
             pc: 0,
+            logs: vec![],
         }
     }
 
     /// Sets the volatile memory of the VM to the SimpleMemory type
     pub fn with_simple_memory(mut self) -> VM {
         self.memory = Some(Box::new(SimpleMemory::new()));
+        self
+    }
+
+    /// Sets the address for this VM
+    pub fn with_address(mut self, address: Address) -> VM {
+        self.address = Some(address);
+        self
+    }
+
+    pub fn with_random_address(mut self) -> VM {
+        self.address = Some(Address::random());
         self
     }
 
@@ -254,7 +270,6 @@ impl VM {
                 let offset = self.registers[self.stack_pointer];
                 let value = self.registers[self.stack_pointer - 1];
                 if let Some(ref mut mem) = self.memory {
-                    println!("Storing value: {:?} offset: {:?}", value, offset);
                     mem.write(offset, value)?;
                 } else {
                     return Err(VMError::MemoryError);
@@ -281,6 +296,37 @@ impl VM {
                 self.stack_pointer += 1;
                 self.pc += bytes + 1;
             }
+            Opcode::DUP(bytes) => {
+                let val = self.registers[bytes - 1];
+                self.registers[self.stack_pointer] = val;
+            }
+            Opcode::SWAP(bytes) => {
+                let val1 = self.registers[self.stack_pointer - 1];
+                let val2 = self.registers[bytes - 1];
+                self.registers[self.stack_pointer - 1] = val2;
+                self.registers[bytes - 1] = val1;
+            }
+            Opcode::LOG(bytes) => {
+                self.stack_pointer -= 1;
+                let index = self.registers[self.stack_pointer];
+                let len = self.registers[self.stack_pointer - 1];
+                if let Some(ref mut mem) = self.memory {
+                    let data = mem.copy_from_memory(index.into(), len.into());
+                    let mut topics: Vec<H256> = Vec::new();
+                    for _ in 0..bytes {
+                        let pointer = self.stack_pointer + (bytes + 1);
+                        topics.push(H256::from(self.registers[pointer]));
+                    }
+                    println!("Pushing logs");
+                    self.logs.push(Log {
+                        address: self.address.unwrap(),
+                        data: data,
+                        topics: topics,
+                    });
+                } else {
+                    return Err(VMError::MemoryError);
+                }
+            }
             _ => {
                 return Err(VMError::UnknownOpcodeError);
             }
@@ -291,6 +337,7 @@ impl VM {
 
     /// Utility function to print the values of a range of registers
     pub fn print_registers(&self, start: usize, end: usize) {
+        println!("Stack Pointer is: {:?}", self.stack_pointer);
         println!("Registers are: ");
         for register in self.registers[start..end].iter() {
             print!("{:?} ", register);
@@ -307,6 +354,8 @@ impl Default for VM {
             stack_pointer: 0,
             code: vec![],
             pc: 0,
+            logs: vec![],
+            address: None,
         }
     }
 }
@@ -559,7 +608,51 @@ mod tests {
         assert!(result.is_ok());
         let result = vm.execute_one();
         assert!(result.is_ok());
-        println!("Memory: {:?}", vm.memory.unwrap().print());
         assert_eq!(vm.registers[0], M256::from(5));
     }
+
+    #[test]
+    fn test_dup_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x80];
+        let mut vm = VM::new(default_code).with_simple_memory();
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[2], M256::from(5));
+    }
+
+    #[test]
+    fn test_swap_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x90];
+        let mut vm = VM::new(default_code).with_simple_memory();
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert_eq!(vm.registers[0], M256::from(1));
+        assert_eq!(vm.registers[1], M256::from(5));
+    }
+
+    #[test]
+    fn test_log_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x60, 0x00, 0x60, 0x01, 0xa1];
+        let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        let result = vm.execute_one();
+        assert!(result.is_ok());
+        assert!(vm.logs.len() > 0);
+    }
+
 }

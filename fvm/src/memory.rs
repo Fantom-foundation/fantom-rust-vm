@@ -1,6 +1,5 @@
 //! Module for the volatile memory that is cleared between transactions
 use bigint::{U256, M256};
-use std;
 use errors::*;
 
 /// A volatile area of memory that is created per-transaction. The follow constraints must be observed when interacting with it:
@@ -15,6 +14,8 @@ pub trait Memory {
     fn write_byte(&mut self, index: M256, value: u8) -> Result<()>;
     fn size(&self) -> M256;
     fn print(&self) -> String;
+    fn copy_from_memory(&self, start: U256, len: U256) -> Vec<u8>;
+    fn copy_into_memory(&mut self, values: &[u8], start: U256, value_start: U256, len: U256);
 }
 
 /// Simple implementation of memory using Rust Vecs
@@ -26,12 +27,6 @@ pub struct SimpleMemory {
 
 impl SimpleMemory {
     /// Creates and returns a new SimpleMemory
-    ///
-    /// # Example
-    /// ```
-    /// use memory::SimpleMemory;
-    /// let mem = SimpleMemory::new();
-    /// ```
     pub fn new() -> SimpleMemory {
         SimpleMemory { 
             memory: Vec::new(),
@@ -94,6 +89,33 @@ impl Memory for SimpleMemory {
     fn print(&self) -> String {
         String::from(format!("{:#?}", self.memory))
     }
+
+    fn copy_from_memory(&self, start: U256, len: U256) -> Vec<u8> {
+        let mut result: Vec<u8> = Vec::new();
+        let mut i = start;
+        while i < start + len {
+            result.push(self.read_byte(i.into()));
+            i = i + U256::from(1u64);
+        }
+        result
+    }
+
+    fn copy_into_memory(&mut self, values: &[u8], start: U256, value_start: U256, len: U256) {
+        let value_len = U256::from(values.len());
+        let mut i = start;
+        let mut j = value_start;
+        while i < start + len {
+            if j < value_len {
+                let ju: usize = j.as_usize();
+                self.write_byte(i.into(), values[ju]).unwrap();
+                j = j + U256::from(1u64);
+            } else {
+                self.write_byte(i.into(), 0u8).unwrap();
+            }
+            i = i + U256::from(1u64);
+        }
+    }
+
 }
 
 #[cfg(test)]

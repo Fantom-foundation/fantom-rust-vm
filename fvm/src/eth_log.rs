@@ -11,11 +11,11 @@ pub struct Log {
 }
 
 impl Log {
-  pub fn new(address: Address) -> Log {
-    Log {
-      address: address,
-      topics: vec![],
-      data: vec![]
+    pub fn new(address: Address) -> Log {
+        Log {
+            address: address,
+            topics: vec![],
+            data: vec![],
+        }
     }
-  }
 }

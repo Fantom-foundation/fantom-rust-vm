@@ -1,5 +1,5 @@
 //! Module for the volatile memory that is cleared between transactions
-use bigint::{U256, M256};
+use bigint::{M256, U256};
 use errors::*;
 
 /// A volatile area of memory that is created per-transaction. The follow constraints must be observed when interacting with it:
@@ -22,15 +22,15 @@ pub trait Memory {
 #[derive(Debug, PartialEq)]
 pub struct SimpleMemory {
     memory: Vec<u8>,
-    expansions: usize
+    expansions: usize,
 }
 
 impl SimpleMemory {
     /// Creates and returns a new SimpleMemory
     pub fn new() -> SimpleMemory {
-        SimpleMemory { 
+        SimpleMemory {
             memory: Vec::new(),
-            expansions: 0 
+            expansions: 0,
         }
     }
 
@@ -115,7 +115,6 @@ impl Memory for SimpleMemory {
             i = i + U256::from(1u64);
         }
     }
-
 }
 
 #[cfg(test)]
@@ -124,9 +123,9 @@ mod tests {
 
     fn gen_simple_mem_with_data() -> SimpleMemory {
         let test_value = U256::from(5000);
-        let mut mem = SimpleMemory { 
+        let mut mem = SimpleMemory {
             memory: vec![0; 32],
-            expansions: 0, 
+            expansions: 0,
         };
         test_value.to_big_endian(&mut mem.memory);
         mem

@@ -1,4 +1,4 @@
-use bigint::{U256};
+use bigint::U256;
 
 use storage::Storage;
 

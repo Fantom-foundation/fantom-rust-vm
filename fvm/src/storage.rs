@@ -1,6 +1,6 @@
 //! Module for the non-volatile memory that is maintained between transactions and holds account data
+use bigint::{Address, M256, U256};
 use std::collections::HashMap;
-use bigint::{U256, M256, Address};
 
 use errors::VMError;
 
@@ -12,8 +12,8 @@ pub trait Storage {
 
 /// Simple persistent storage
 pub struct SimpleStorage {
-  address: Address,
-  storage: HashMap<U256, M256>
+    address: Address,
+    storage: HashMap<U256, M256>,
 }
 
 // impl SimpleStorage {

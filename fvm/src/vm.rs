@@ -4,8 +4,8 @@ use bigint::{Address, H256, M256, MI256};
 use errors::{Result, VMError};
 use eth_log::Log;
 use memory::{Memory, SimpleMemory};
-use storage::{Storage};
 use opcodes::Opcode;
+use storage::Storage;
 
 pub struct VM {
     address: Option<Address>,
@@ -39,8 +39,8 @@ impl VM {
         self
     }
 
-    pub fn with_storage(mut self, address: Address, partial: bool) -> VM {
-        self.storage = Some(Storage::new(address, partial));
+    pub fn with_storage(mut self, address: Address) -> VM {
+        self.storage = Some(Storage::new(address));
         self
     }
 
@@ -262,8 +262,18 @@ impl VM {
                 }
                 self.registers[self.stack_pointer] = ret;
             }
-            Opcode::SLOAD => unimplemented!(),
-            Opcode::STORE => unimplemented!(),
+            Opcode::SLOAD => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                if let Some(ref mut store) = self.storage {
+                    let value = store.read(s1.into());
+                }
+            }
+            Opcode::STORE => {
+                self.stack_pointer -= 1;
+                let s1 = self.registers[self.stack_pointer];
+                let s2 = self.registers[self.stack_pointer - 1];
+            }
             Opcode::MLOAD => {
                 self.stack_pointer -= 1;
                 let offset = self.registers[self.stack_pointer];

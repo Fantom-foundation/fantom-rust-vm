@@ -7,7 +7,6 @@ pub type Result<T> = std::result::Result<T, VMError>;
 pub enum VMError {
     UnknownOpcodeError,
     MemoryError,
-
 }
 
 impl Error for VMError {}
@@ -27,7 +26,7 @@ pub enum StorageError {
     CommitError,
     RequireError,
     InvalidCommitment,
-    AlreadyCommitted
+    AlreadyCommitted,
 }
 
 impl Error for StorageError {}
@@ -39,5 +38,5 @@ impl fmt::Display for StorageError {
             StorageError::CommitError => write!(f, "commit area"),
             _ => write!(f, "unknown storage error occurred"),
         }
-    }  
+    }
 }

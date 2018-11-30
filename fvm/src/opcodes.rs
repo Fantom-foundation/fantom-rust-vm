@@ -38,7 +38,6 @@ pub enum Opcode {
     LOG(usize),
     INVALID,
     SUICIDE,
-            
 }
 
 impl<'a> From<&'a u8> for Opcode {

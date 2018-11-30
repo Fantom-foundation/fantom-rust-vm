@@ -1,6 +1,5 @@
-
+use bigint::{Address, M256, U256};
 use std::rc::Rc;
-use bigint::{M256, U256, Address};
 use storage::Storage;
 
 #[derive(Debug, Clone)]
@@ -45,18 +44,9 @@ impl AccountCommitment {
     /// Address of this account commitment.
     pub fn address(&self) -> Address {
         match *self {
-            AccountCommitment::Full {
-                address,
-                ..
-            } => address,
-            AccountCommitment::Code {
-                address,
-                ..
-            } => address,
-            AccountCommitment::Storage {
-                address,
-                ..
-            } => address,
+            AccountCommitment::Full { address, .. } => address,
+            AccountCommitment::Code { address, .. } => address,
+            AccountCommitment::Storage { address, .. } => address,
             AccountCommitment::Nonexist(address) => address,
         }
     }
@@ -91,26 +81,20 @@ pub enum AccountChange {
         /// All storage values of this account, with given indexes and values.
         storage: Storage,
         /// Code associated with this account.
-        code: Rc<Vec<u8>>
+        code: Rc<Vec<u8>>,
     },
     /// The account should remain nonexist, or should be deleted if
     /// exists.
-    Nonexist(Address)
+    Nonexist(Address),
 }
 
 impl AccountChange {
     /// Address of this account.
     pub fn address(&self) -> Address {
         match *self {
-            AccountChange::Full {
-                address,
-                ..
-            } => address,
+            AccountChange::Full { address, .. } => address,
             AccountChange::IncreaseBalance(address, _) => address,
-            AccountChange::Create {
-                address,
-                ..
-            } => address,
+            AccountChange::Create { address, .. } => address,
             AccountChange::Nonexist(address) => address,
         }
     }

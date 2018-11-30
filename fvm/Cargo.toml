@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Fletcher Haynes <fletcher@subnetzero.io>"]
 
 [dependencies]
-error-chain = "0.12.0"
 etcommon-bigint = "0.2.10"
 etcommon-trie = "0.3"
 etcommon-block = "0.5"

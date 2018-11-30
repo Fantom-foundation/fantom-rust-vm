@@ -32,11 +32,13 @@ pub enum Opcode {
     MSTORE,
     MSTORE8,
     MSIZE,
-    UNKNOWN,
     PUSH(usize),
     DUP(usize),
     SWAP(usize),
     LOG(usize),
+    INVALID,
+    SUICIDE,
+            
 }
 
 impl<'a> From<&'a u8> for Opcode {
@@ -143,7 +145,10 @@ impl<'a> From<&'a u8> for Opcode {
             0xa2 => Opcode::LOG(2),
             0xa3 => Opcode::LOG(3),
             0xa4 => Opcode::LOG(4),
-            _ => Opcode::UNKNOWN,
+
+            0xfe => Opcode::INVALID,
+            0xff => Opcode::SUICIDE,
+            _ => Opcode::INVALID,
         }
     }
 }

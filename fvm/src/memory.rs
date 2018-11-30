@@ -82,10 +82,12 @@ impl Memory for SimpleMemory {
         Ok(())
     }
 
+    /// Returns the current size of memory in words
     fn size(&self) -> M256 {
         M256::from(self.memory.len())
     }
 
+    /// Prints the contents of memory
     fn print(&self) -> String {
         String::from(format!("{:#?}", self.memory))
     }
@@ -100,6 +102,7 @@ impl Memory for SimpleMemory {
         result
     }
 
+    /// Copies a slice of values into memory with a start and end index
     fn copy_into_memory(&mut self, values: &[u8], start: U256, value_start: U256, len: U256) {
         let value_len = U256::from(values.len());
         let mut i = start;

@@ -4,12 +4,14 @@ use bigint::{Address, H256, M256, MI256};
 use errors::{Result, VMError};
 use eth_log::Log;
 use memory::{Memory, SimpleMemory};
+use storage::{Storage};
 use opcodes::Opcode;
 
 pub struct VM {
     address: Option<Address>,
     registers: [M256; 1024],
     memory: Option<Box<Memory>>,
+    storage: Option<Storage>,
     code: Vec<u8>,
     pc: usize,
     stack_pointer: usize,
@@ -23,6 +25,7 @@ impl VM {
             address: None,
             registers: [0.into(); 1024],
             memory: None,
+            storage: None,
             stack_pointer: 0,
             code: code,
             pc: 0,
@@ -33,6 +36,11 @@ impl VM {
     /// Sets the volatile memory of the VM to the SimpleMemory type
     pub fn with_simple_memory(mut self) -> VM {
         self.memory = Some(Box::new(SimpleMemory::new()));
+        self
+    }
+
+    pub fn with_storage(mut self, address: Address, partial: bool) -> VM {
+        self.storage = Some(Storage::new(address, partial));
         self
     }
 
@@ -351,6 +359,7 @@ impl Default for VM {
         VM {
             registers: [0.into(); 1024],
             memory: Some(Box::new(SimpleMemory::new())),
+            storage: None,
             stack_pointer: 0,
             code: vec![],
             pc: 0,

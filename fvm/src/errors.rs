@@ -7,6 +7,7 @@ pub type Result<T> = std::result::Result<T, VMError>;
 pub enum VMError {
     UnknownOpcodeError,
     MemoryError,
+
 }
 
 impl Error for VMError {}
@@ -19,4 +20,24 @@ impl fmt::Display for VMError {
             _ => write!(f, "unknown error occurred"),
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum StorageError {
+    CommitError,
+    RequireError,
+    InvalidCommitment,
+    AlreadyCommitted
+}
+
+impl Error for StorageError {}
+
+impl fmt::Display for StorageError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            StorageError::RequireError => write!(f, "require area"),
+            StorageError::CommitError => write!(f, "commit area"),
+            _ => write!(f, "unknown storage error occurred"),
+        }
+    }  
 }

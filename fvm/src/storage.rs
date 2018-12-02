@@ -44,9 +44,8 @@ impl Storage {
 
     /// Write a value into the storage.
     pub fn write(&mut self, index: U256, value: M256) -> Result<(), StorageError> {
-        if !self.storage.contains_key(&index) {
+        if self.storage.contains_key(&index) {
             return Err(StorageError::RequireError);
-            //::AccountStorage(self.address, index));
         }
         self.storage.insert(index, value);
         Ok(())

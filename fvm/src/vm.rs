@@ -266,13 +266,27 @@ impl VM {
                 self.stack_pointer -= 1;
                 let s1 = self.registers[self.stack_pointer];
                 if let Some(ref mut store) = self.storage {
-                    let value = store.read(s1.into());
+                    self.registers[self.stack_pointer] = store.read(s1.into()).unwrap();
+                } else {
+                    return Err(VMError::MemoryError);
                 }
             }
             Opcode::STORE => {
                 self.stack_pointer -= 1;
                 let s1 = self.registers[self.stack_pointer];
                 let s2 = self.registers[self.stack_pointer - 1];
+                if let Some(ref mut store) = self.storage {
+                    match store.write(s1.into(), s2.into()) {
+                        Ok(_) => {
+                            
+                        },
+                        Err(_e) => {
+                            return Err(VMError::MemoryError);
+                        }
+                    }
+                } else {
+                    return Err(VMError::MemoryError)
+                }
             }
             Opcode::MLOAD => {
                 self.stack_pointer -= 1;
@@ -674,4 +688,27 @@ mod tests {
         assert!(vm.logs.len() > 0);
     }
 
+    #[test]
+    fn test_sload_opcode() {
+        let default_code = vec![0x60, 0x05, 0x60, 0x01, 0x54];
+        let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
+        vm.storage = Some(Storage::new(vm.address.unwrap()));
+        if let Some(ref mut store) = vm.storage {
+            assert!(store.write(0.into(), 100.into()).is_ok());
+        };
+        assert!(vm.execute_one().is_ok());
+        assert!(vm.execute_one().is_ok());
+    }
+
+    #[test]
+    fn test_store_opcode() {
+        let default_code = vec![0x60, 0x00, 0x60, 0x05, 0x55];
+        let mut vm = VM::new(default_code)
+            .with_simple_memory()
+            .with_random_address();
+        vm.storage = Some(Storage::new(vm.address.unwrap()));
+        assert!()
+    }
+
 }
+

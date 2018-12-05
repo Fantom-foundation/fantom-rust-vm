@@ -1,0 +1,16 @@
+name: FVM Client
+version: "0.1"
+author: Fletcher Haynes <fletcher@capitalprawn.com>
+about: Ethereum VM Client
+args:
+  
+subcommands:
+    - transaction-test:
+        about: Tests processing the bytecode of a transaction
+        version: "0.1"
+        author: Fletcher Haynes <fletcher@capitalprawn.com>
+        args:
+          - INPUT:
+              help: Sets the input file to use
+              required: true
+              index: 1

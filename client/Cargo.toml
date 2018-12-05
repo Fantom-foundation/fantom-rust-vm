@@ -1,0 +1,9 @@
+[package]
+name = "client"
+version = "0.1.0"
+authors = ["Fletcher Haynes <fletcher@capitalprawn.com>"]
+
+[dependencies]
+clap = {version = "~2.32.0", features = ["yaml"]}
+fvm = { path = "../fvm" }
+world = { path = "../world" }

@@ -1,0 +1,120 @@
+PragmaDirective
+   Source: "pragma solidity >=0.4.22 <0.6.0;"
+ContractDefinition "Mortal"
+   Source: "contract Mortal {\n    /* Define variable owner of the type address */\n    address owner;\n\n    /* This constructor is executed at initialization and sets the owner of the contract */\n    constructor() public { owner = msg.sender; }\n\n    /* Function to recover the funds on the contract */\n    function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); }\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "" - public
+     Source: "constructor() public { owner = msg.sender; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{ owner = msg.sender; }"
+      ExpressionStatement
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address payable
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "kill" - public
+     Source: "function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{ if (msg.sender == owner) selfdestruct(msg.sender); }"
+      IfStatement
+         Source: "if (msg.sender == owner) selfdestruct(msg.sender)"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "msg.sender == owner"
+          MemberAccess to member sender
+             Type: address payable
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        ExpressionStatement
+           Source: "selfdestruct(msg.sender)"
+          FunctionCall
+             Type: tuple()
+             Source: "selfdestruct(msg.sender)"
+            Identifier selfdestruct
+               Type: function (address payable)
+               Source: "selfdestruct"
+            MemberAccess to member sender
+               Type: address payable
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+ContractDefinition "Greeter"
+   Source: "contract Greeter is Mortal {\n    /* Define variable greeting of the type string */\n    string greeting;\n\n    /* This runs when the contract is executed */\n    constructor(string memory _greeting) public {\n        greeting = _greeting;\n    }\n\n    /* Main function */\n    function greet() public view returns (string memory) {\n        return greeting;\n    }\n}"
+  InheritanceSpecifier
+     Source: "Mortal"
+    UserDefinedTypeName "Mortal"
+       Source: "Mortal"
+  VariableDeclaration "greeting"
+     Type: string storage ref
+     Source: "string greeting"
+    ElementaryTypeName string
+       Source: "string"
+  FunctionDefinition "" - public
+     Source: "constructor(string memory _greeting) public {\n        greeting = _greeting;\n    }"
+    ParameterList
+       Source: "(string memory _greeting)"
+      VariableDeclaration "_greeting"
+         Type: string memory
+         Source: "string memory _greeting"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\n        greeting = _greeting;\n    }"
+      ExpressionStatement
+         Source: "greeting = _greeting"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "greeting = _greeting"
+          Identifier greeting
+             Type: string storage ref
+             Source: "greeting"
+          Identifier _greeting
+             Type: string memory
+             Source: "_greeting"
+  FunctionDefinition "greet" - public - const
+     Source: "function greet() public view returns (string memory) {\n        return greeting;\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(string memory)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string memory"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\n        return greeting;\n    }"
+      Return
+         Source: "return greeting"
+        Identifier greeting
+           Type: string storage ref
+           Source: "greeting"

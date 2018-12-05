@@ -1,0 +1,689 @@
+    /* "Greeter.sol":407:764  contract Greeter is Mortal {... */
+  mstore(0x40, 0x80)
+    /* "Greeter.sol":566:647  constructor(string memory _greeting) public {... */
+  callvalue
+    /* "--CODEGEN--":8:17   */
+  dup1
+    /* "--CODEGEN--":5:7   */
+  iszero
+  tag_1
+  jumpi
+    /* "--CODEGEN--":30:31   */
+  0x0
+    /* "--CODEGEN--":27:28   */
+  dup1
+    /* "--CODEGEN--":20:32   */
+  revert
+    /* "--CODEGEN--":5:7   */
+tag_1:
+    /* "Greeter.sol":566:647  constructor(string memory _greeting) public {... */
+  pop
+  mload(0x40)
+  sub(codesize, bytecodeSize)
+  dup1
+  bytecodeSize
+  dup4
+  codecopy
+  dup2
+  add
+  dup1
+  0x40
+  mstore
+    /* "--CODEGEN--":13:15   */
+  0x20
+    /* "--CODEGEN--":8:11   */
+  dup2
+    /* "--CODEGEN--":5:16   */
+  lt
+    /* "--CODEGEN--":2:4   */
+  iszero
+  tag_2
+  jumpi
+    /* "--CODEGEN--":29:30   */
+  0x0
+    /* "--CODEGEN--":26:27   */
+  dup1
+    /* "--CODEGEN--":19:31   */
+  revert
+    /* "--CODEGEN--":2:4   */
+tag_2:
+    /* "Greeter.sol":566:647  constructor(string memory _greeting) public {... */
+  dup2
+  add
+  swap1
+  dup1
+  dup1
+  mload
+    /* "--CODEGEN--":19:30   */
+  0x100000000
+    /* "--CODEGEN--":14:17   */
+  dup2
+    /* "--CODEGEN--":11:31   */
+  gt
+    /* "--CODEGEN--":8:10   */
+  iszero
+  tag_3
+  jumpi
+    /* "--CODEGEN--":44:45   */
+  0x0
+    /* "--CODEGEN--":41:42   */
+  dup1
+    /* "--CODEGEN--":34:46   */
+  revert
+    /* "--CODEGEN--":8:10   */
+tag_3:
+    /* "--CODEGEN--":71:82   */
+  dup3
+    /* "--CODEGEN--":66:69   */
+  dup2
+    /* "--CODEGEN--":62:83   */
+  add
+    /* "--CODEGEN--":55:83   */
+  swap1
+  pop
+    /* "--CODEGEN--":123:127   */
+  0x20
+    /* "--CODEGEN--":118:121   */
+  dup2
+    /* "--CODEGEN--":114:128   */
+  add
+    /* "--CODEGEN--":159:168   */
+  dup5
+    /* "--CODEGEN--":141:157   */
+  dup2
+    /* "--CODEGEN--":138:169   */
+  gt
+    /* "--CODEGEN--":135:137   */
+  iszero
+  tag_4
+  jumpi
+    /* "--CODEGEN--":182:183   */
+  0x0
+    /* "--CODEGEN--":179:180   */
+  dup1
+    /* "--CODEGEN--":172:184   */
+  revert
+    /* "--CODEGEN--":135:137   */
+tag_4:
+    /* "--CODEGEN--":219:222   */
+  dup2
+    /* "--CODEGEN--":213:223   */
+  mload
+    /* "--CODEGEN--":330:339   */
+  dup6
+    /* "--CODEGEN--":325:326   */
+  0x1
+    /* "--CODEGEN--":311:323   */
+  dup3
+    /* "--CODEGEN--":307:327   */
+  mul
+    /* "--CODEGEN--":289:305   */
+  dup4
+    /* "--CODEGEN--":285:328   */
+  add
+    /* "--CODEGEN--":282:340   */
+  gt
+    /* "--CODEGEN--":261:272   */
+  0x100000000
+    /* "--CODEGEN--":247:259   */
+  dup3
+    /* "--CODEGEN--":244:273   */
+  gt
+    /* "--CODEGEN--":233:348   */
+  or
+    /* "--CODEGEN--":230:232   */
+  iszero
+  tag_5
+  jumpi
+    /* "--CODEGEN--":361:362   */
+  0x0
+    /* "--CODEGEN--":358:359   */
+  dup1
+    /* "--CODEGEN--":351:363   */
+  revert
+    /* "--CODEGEN--":230:232   */
+tag_5:
+    /* "--CODEGEN--":0:372   */
+  pop
+  pop
+    /* "Greeter.sol":566:647  constructor(string memory _greeting) public {... */
+  swap3
+  swap2
+  swap1
+  pop
+  pop
+  pop
+    /* "Greeter.sol":251:261  msg.sender */
+  caller
+    /* "Greeter.sol":243:248  owner */
+  0x0
+  dup1
+    /* "Greeter.sol":243:261  owner = msg.sender */
+  0x100
+  exp
+  dup2
+  sload
+  dup2
+  0xffffffffffffffffffffffffffffffffffffffff
+  mul
+  not
+  and
+  swap1
+  dup4
+  0xffffffffffffffffffffffffffffffffffffffff
+  and
+  mul
+  or
+  swap1
+  sstore
+  pop
+    /* "Greeter.sol":631:640  _greeting */
+  dup1
+    /* "Greeter.sol":620:628  greeting */
+  0x1
+    /* "Greeter.sol":620:640  greeting = _greeting */
+  swap1
+  dup1
+  mload
+  swap1
+  0x20
+  add
+  swap1
+  tag_10
+  swap3
+  swap2
+  swap1
+  jump	// in(tag_11)
+tag_10:
+  pop
+    /* "Greeter.sol":566:647  constructor(string memory _greeting) public {... */
+  pop
+    /* "Greeter.sol":407:764  contract Greeter is Mortal {... */
+  jump(tag_12)
+tag_11:
+  dup3
+  dup1
+  sload
+  0x1
+  dup2
+  0x1
+  and
+  iszero
+  0x100
+  mul
+  sub
+  and
+  0x2
+  swap1
+  div
+  swap1
+  0x0
+  mstore
+  keccak256(0x0, 0x20)
+  swap1
+  0x1f
+  add
+  0x20
+  swap1
+  div
+  dup2
+  add
+  swap3
+  dup3
+  0x1f
+  lt
+  tag_14
+  jumpi
+  dup1
+  mload
+  not(0xff)
+  and
+  dup4
+  dup1
+  add
+  or
+  dup6
+  sstore
+  jump(tag_13)
+tag_14:
+  dup3
+  dup1
+  add
+  0x1
+  add
+  dup6
+  sstore
+  dup3
+  iszero
+  tag_13
+  jumpi
+  swap2
+  dup3
+  add
+tag_15:
+  dup3
+  dup2
+  gt
+  iszero
+  tag_16
+  jumpi
+  dup3
+  mload
+  dup3
+  sstore
+  swap2
+  0x20
+  add
+  swap2
+  swap1
+  0x1
+  add
+  swap1
+  jump(tag_15)
+tag_16:
+tag_13:
+  pop
+  swap1
+  pop
+  tag_17
+  swap2
+  swap1
+  jump	// in(tag_18)
+tag_17:
+  pop
+  swap1
+  jump	// out
+tag_18:
+  tag_19
+  swap2
+  swap1
+tag_20:
+  dup1
+  dup3
+  gt
+  iszero
+  tag_21
+  jumpi
+  0x0
+  dup2
+  0x0
+  swap1
+  sstore
+  pop
+  0x1
+  add
+  jump(tag_20)
+tag_21:
+  pop
+  swap1
+  jump
+tag_19:
+  swap1
+  jump	// out
+tag_12:
+  dataSize(sub_0)
+  dup1
+  dataOffset(sub_0)
+  0x0
+  codecopy
+  0x0
+  return
+stop
+
+sub_0: assembly {
+        /* "Greeter.sol":407:764  contract Greeter is Mortal {... */
+      mstore(0x40, 0x80)
+      jumpi(tag_1, lt(calldatasize, 0x4))
+      calldataload(0x0)
+      0x100000000000000000000000000000000000000000000000000000000
+      swap1
+      div
+      0xffffffff
+      and
+      dup1
+      0x41c0e1b5
+      eq
+      tag_2
+      jumpi
+      dup1
+      0xcfae3217
+      eq
+      tag_3
+      jumpi
+    tag_1:
+      0x0
+      dup1
+      revert
+        /* "Greeter.sol":326:403  function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); } */
+    tag_2:
+      callvalue
+        /* "--CODEGEN--":8:17   */
+      dup1
+        /* "--CODEGEN--":5:7   */
+      iszero
+      tag_4
+      jumpi
+        /* "--CODEGEN--":30:31   */
+      0x0
+        /* "--CODEGEN--":27:28   */
+      dup1
+        /* "--CODEGEN--":20:32   */
+      revert
+        /* "--CODEGEN--":5:7   */
+    tag_4:
+        /* "Greeter.sol":326:403  function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); } */
+      pop
+      tag_5
+      jump(tag_6)
+    tag_5:
+      stop
+        /* "Greeter.sol":677:762  function greet() public view returns (string memory) {... */
+    tag_3:
+      callvalue
+        /* "--CODEGEN--":8:17   */
+      dup1
+        /* "--CODEGEN--":5:7   */
+      iszero
+      tag_7
+      jumpi
+        /* "--CODEGEN--":30:31   */
+      0x0
+        /* "--CODEGEN--":27:28   */
+      dup1
+        /* "--CODEGEN--":20:32   */
+      revert
+        /* "--CODEGEN--":5:7   */
+    tag_7:
+        /* "Greeter.sol":677:762  function greet() public view returns (string memory) {... */
+      pop
+      tag_8
+      jump(tag_9)
+    tag_8:
+      mload(0x40)
+      dup1
+      dup1
+      0x20
+      add
+      dup3
+      dup2
+      sub
+      dup3
+      mstore
+      dup4
+      dup2
+      dup2
+      mload
+      dup2
+      mstore
+      0x20
+      add
+      swap2
+      pop
+      dup1
+      mload
+      swap1
+      0x20
+      add
+      swap1
+      dup1
+      dup4
+      dup4
+        /* "--CODEGEN--":23:24   */
+      0x0
+        /* "--CODEGEN--":8:108   */
+    tag_10:
+        /* "--CODEGEN--":33:36   */
+      dup4
+        /* "--CODEGEN--":30:31   */
+      dup2
+        /* "--CODEGEN--":27:37   */
+      lt
+        /* "--CODEGEN--":8:108   */
+      iszero
+      tag_11
+      jumpi
+        /* "--CODEGEN--":99:100   */
+      dup1
+        /* "--CODEGEN--":94:97   */
+      dup3
+        /* "--CODEGEN--":90:101   */
+      add
+        /* "--CODEGEN--":84:102   */
+      mload
+        /* "--CODEGEN--":80:81   */
+      dup2
+        /* "--CODEGEN--":75:78   */
+      dup5
+        /* "--CODEGEN--":71:82   */
+      add
+        /* "--CODEGEN--":64:103   */
+      mstore
+        /* "--CODEGEN--":52:54   */
+      0x20
+        /* "--CODEGEN--":49:50   */
+      dup2
+        /* "--CODEGEN--":45:55   */
+      add
+        /* "--CODEGEN--":40:55   */
+      swap1
+      pop
+        /* "--CODEGEN--":8:108   */
+      jump(tag_10)
+    tag_11:
+        /* "--CODEGEN--":12:26   */
+      pop
+        /* "Greeter.sol":677:762  function greet() public view returns (string memory) {... */
+      pop
+      pop
+      pop
+      swap1
+      pop
+      swap1
+      dup2
+      add
+      swap1
+      0x1f
+      and
+      dup1
+      iszero
+      tag_13
+      jumpi
+      dup1
+      dup3
+      sub
+      dup1
+      mload
+      0x1
+      dup4
+      0x20
+      sub
+      0x100
+      exp
+      sub
+      not
+      and
+      dup2
+      mstore
+      0x20
+      add
+      swap2
+      pop
+    tag_13:
+      pop
+      swap3
+      pop
+      pop
+      pop
+      mload(0x40)
+      dup1
+      swap2
+      sub
+      swap1
+      return
+        /* "Greeter.sol":326:403  function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); } */
+    tag_6:
+        /* "Greeter.sol":369:374  owner */
+      0x0
+      dup1
+      swap1
+      sload
+      swap1
+      0x100
+      exp
+      swap1
+      div
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+        /* "Greeter.sol":355:374  msg.sender == owner */
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+        /* "Greeter.sol":355:365  msg.sender */
+      caller
+        /* "Greeter.sol":355:374  msg.sender == owner */
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+      eq
+        /* "Greeter.sol":351:400  if (msg.sender == owner) selfdestruct(msg.sender) */
+      iszero
+      tag_15
+      jumpi
+        /* "Greeter.sol":389:399  msg.sender */
+      caller
+        /* "Greeter.sol":376:400  selfdestruct(msg.sender) */
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+      selfdestruct
+        /* "Greeter.sol":351:400  if (msg.sender == owner) selfdestruct(msg.sender) */
+    tag_15:
+        /* "Greeter.sol":326:403  function kill() public { if (msg.sender == owner) selfdestruct(msg.sender); } */
+      jump	// out
+        /* "Greeter.sol":677:762  function greet() public view returns (string memory) {... */
+    tag_9:
+        /* "Greeter.sol":715:728  string memory */
+      0x60
+        /* "Greeter.sol":747:755  greeting */
+      0x1
+        /* "Greeter.sol":740:755  return greeting */
+      dup1
+      sload
+      0x1
+      dup2
+      0x1
+      and
+      iszero
+      0x100
+      mul
+      sub
+      and
+      0x2
+      swap1
+      div
+      dup1
+      0x1f
+      add
+      0x20
+      dup1
+      swap2
+      div
+      mul
+      0x20
+      add
+      mload(0x40)
+      swap1
+      dup2
+      add
+      0x40
+      mstore
+      dup1
+      swap3
+      swap2
+      swap1
+      dup2
+      dup2
+      mstore
+      0x20
+      add
+      dup3
+      dup1
+      sload
+      0x1
+      dup2
+      0x1
+      and
+      iszero
+      0x100
+      mul
+      sub
+      and
+      0x2
+      swap1
+      div
+      dup1
+      iszero
+      tag_17
+      jumpi
+      dup1
+      0x1f
+      lt
+      tag_18
+      jumpi
+      0x100
+      dup1
+      dup4
+      sload
+      div
+      mul
+      dup4
+      mstore
+      swap2
+      0x20
+      add
+      swap2
+      jump(tag_17)
+    tag_18:
+      dup3
+      add
+      swap2
+      swap1
+      0x0
+      mstore
+      keccak256(0x0, 0x20)
+      swap1
+    tag_19:
+      dup2
+      sload
+      dup2
+      mstore
+      swap1
+      0x1
+      add
+      swap1
+      0x20
+      add
+      dup1
+      dup4
+      gt
+      tag_19
+      jumpi
+      dup3
+      swap1
+      sub
+      0x1f
+      and
+      dup3
+      add
+      swap2
+    tag_17:
+      pop
+      pop
+      pop
+      pop
+      pop
+      swap1
+      pop
+        /* "Greeter.sol":677:762  function greet() public view returns (string memory) {... */
+      swap1
+      jump	// out
+
+    auxdata: 0xa165627a7a72305820c6eca36449c15a527bbd60388a90bff83cc81cd77c4b2cc96689329fbbda1fdb0029
+}

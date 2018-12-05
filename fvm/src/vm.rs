@@ -277,15 +277,13 @@ impl VM {
                 let s2 = self.registers[self.stack_pointer - 1];
                 if let Some(ref mut store) = self.storage {
                     match store.write(s1.into(), s2.into()) {
-                        Ok(_) => {
-                            
-                        },
+                        Ok(_) => {}
                         Err(_e) => {
                             return Err(VMError::MemoryError);
                         }
                     }
                 } else {
-                    return Err(VMError::MemoryError)
+                    return Err(VMError::MemoryError);
                 }
             }
             Opcode::MLOAD => {
@@ -703,12 +701,10 @@ mod tests {
     #[test]
     fn test_store_opcode() {
         let default_code = vec![0x60, 0x00, 0x60, 0x05, 0x55];
-        let mut vm = VM::new(default_code)
-            .with_simple_memory()
-            .with_random_address();
+        let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
         vm.storage = Some(Storage::new(vm.address.unwrap()));
-        assert!()
+        assert!(vm.execute_one().is_ok());
+        assert!(vm.execute_one().is_ok());
     }
 
 }
-

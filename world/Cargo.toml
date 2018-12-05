@@ -1,0 +1,11 @@
+[package]
+name = "world"
+version = "0.1.0"
+authors = ["Fletcher Haynes <fletcher@capitalprawn.com>"]
+
+[dependencies]
+rlp = "0.3.0"
+etcommon-trie = "0.4.0"
+etcommon-bigint = "0.2.10"
+tempdir = "0.3.7"
+rkv = "0.7.0"

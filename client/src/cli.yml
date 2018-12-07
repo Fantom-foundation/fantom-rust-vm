@@ -3,7 +3,31 @@ version: "0.1"
 author: Fletcher Haynes <fletcher@capitalprawn.com>
 about: Ethereum VM Client
 args:
-  
+    - listen-port:
+        short: p
+        help: Port to use for general communications (not RPC)
+        takes_value: true
+        default_value: "30303"
+    - rpc-port:
+        short: r
+        help: Port to use for JSON-RPC
+        takes_value: true
+        default_value: "8545"
+    - discovery-port:
+        short: i
+        help: Port to use for UDP-based discovery
+        takes_value: true
+        default_value: "30303"
+    - data-directory:
+        short: d
+        help: Path to file to base data directory
+        takes_value: true
+        default_value: /tmp/fvm/
+    - genesis-file:
+        short: g
+        help: Path to the Genesis File
+        takes_value: true
+        default_value: genesis.json
 subcommands:
     - transaction-test:
         about: Tests processing the bytecode of a transaction
@@ -14,3 +38,14 @@ subcommands:
               help: Sets the input file to use
               required: true
               index: 1
+    - account:
+        subcommands:
+            - new:
+                about: Creates a new Account
+                version: "0.1"
+                author: "Fletcher Haynes <fletcher@capitalprawn.com>"
+                args:
+                    - keyfile-path:
+                        short: k
+                        help: Path to save the keyfile
+                        

@@ -7,3 +7,11 @@ authors = ["Fletcher Haynes <fletcher@capitalprawn.com>"]
 clap = {version = "~2.32.0", features = ["yaml"]}
 fvm = { path = "../fvm" }
 world = { path = "../world" }
+etcommon-bigint = "0.2.10"
+etcommon-trie = "0.4"
+etcommon-block = "0.5.1"
+etcommon-rlp = "0.2"
+devp2p-secp256k1 = "0.5.6"
+env_logger = "0.6.0"
+log = "0.4.6"
+rand = "0.4"

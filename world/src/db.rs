@@ -1,6 +1,9 @@
-use bigint::{H256, U256};
+use bigint::H256;
 use tempdir::TempDir;
 use trie::TrieMut;
+
+use std::path::Path;
+use std::fs;
 
 // Database imports
 use rkv::{Manager, Rkv, Store, StoreError, Value};
@@ -19,16 +22,38 @@ fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     Err(StoreError::DirectoryDoesNotExistError(root.into()))
 }
 
-pub struct WorldDB {
+fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), StoreError> {
+    let root = path.to_string() + name + "/";
+    let result = fs::create_dir_all(root.clone());
+    let root = Path::new(&root);
+    let created_arc = Manager::singleton().write().unwrap().get_or_create(root, Rkv::new)?;
+    if let Ok(k) = created_arc.read() {
+        if let Ok(a) = k.open_or_create("store") {
+            return Ok((created_arc.clone(), a));
+        }
+    }
+    Err(StoreError::DirectoryDoesNotExistError(root.into()))
+}
+
+pub struct DB {
     root: H256,
     handle: RDB,
     database: Store,
 }
 
-impl WorldDB {
-    pub fn new(root: H256) -> WorldDB {
+impl DB {
+    pub fn new_temporary(root: H256) -> DB {
         let (rkv, store) = create_temporary_db().unwrap();
-        WorldDB {
+        DB {
+            root: root,
+            handle: rkv,
+            database: store,
+        }
+    }
+
+    pub fn new_persistent(path: &str, name: &str, root: H256) -> DB {
+        let (rkv, store) = create_persistent_db(path, name).unwrap();
+        DB {
             root: root,
             handle: rkv,
             database: store,
@@ -36,7 +61,7 @@ impl WorldDB {
     }
 }
 
-impl TrieMut for WorldDB {
+impl TrieMut for DB {
     fn root(&self) -> H256 {
         self.root
     }
@@ -45,12 +70,12 @@ impl TrieMut for WorldDB {
         match self.handle.read() {
             Ok(env_lock) => match env_lock.write() {
                 Ok(mut writer) => {
-                    writer.put(self.database, key, &Value::Blob(value));
-                    writer.commit();
+                    let _result = writer.put(self.database, key, &Value::Blob(value));
+                    let _result = writer.commit();
                 }
-                Err(e) => {}
+                Err(_e) => {}
             },
-            Err(e) => {}
+            Err(_e) => {}
         }
     }
 
@@ -58,12 +83,12 @@ impl TrieMut for WorldDB {
         match self.handle.write() {
             Ok(env_lock) => match env_lock.write() {
                 Ok(mut writer) => {
-                    writer.delete(self.database, key);
-                    writer.commit();
+                    let _result = writer.delete(self.database, key);
+                    let _result = writer.commit();
                 }
-                Err(e) => {}
+                Err(_e) => {}
             },
-            Err(e) => {}
+            Err(_e) => {}
         }
     }
     fn get(&self, key: &[u8]) -> Option<Vec<u8>> {

@@ -6,6 +6,8 @@ extern crate secp256k1;
 extern crate log;
 extern crate env_logger;
 extern crate rand;
+extern crate uuid;
+extern crate crypto;
 
 use std::{fs, io};
 use std::process::exit;
@@ -41,7 +43,16 @@ pub fn main() {
 
     if let Some(account_matches) = matches.subcommand_matches("account") {
         if let Some(new_matches) = account_matches.subcommand_matches("new") {
+            match keys::generate_random_keypair() {
+                Ok((secret_key, public_key)) => {
+                    let account_id = uuid::Uuid::new_v4();
 
+                },
+                Err(e) => {
+                    error!("There was an error creating a new account: {:?}", e);
+                    exit(1);
+                }
+            }
         }
     }
 

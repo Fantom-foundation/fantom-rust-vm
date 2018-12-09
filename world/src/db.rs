@@ -24,11 +24,11 @@ fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
 
 fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), StoreError> {
     let root = path.to_string() + name + "/";
-    let result = fs::create_dir_all(root.clone());
+    fs::create_dir_all(root.clone())?;
     let root = Path::new(&root);
     let created_arc = Manager::singleton().write().unwrap().get_or_create(root, Rkv::new)?;
     if let Ok(k) = created_arc.read() {
-        if let Ok(a) = k.open_or_create("store") {
+        if let Ok(a) = k.open_or_create("key_store") {
             return Ok((created_arc.clone(), a));
         }
     }

@@ -279,6 +279,105 @@ impl VM {
 			Opcode::SHA3 => {
 				unimplemented!()
 			}
+			Opcode::ADDRESS => {
+				unimplemented!()
+			}
+			Opcode::BALANCE => {
+				unimplemented!()
+			}
+			Opcode::ORIGIN => {
+				unimplemented!()
+			}
+			Opcode::CALLER => {
+				unimplemented!()
+			}
+			Opcode::CALLVALUE => {
+				unimplemented!()
+			}
+			Opcode::CALLDATALOAD => {
+				unimplemented!()
+			}
+			Opcode::CALLDATASIZE => {
+				unimplemented!()
+			}
+			Opcode::CALLDATACOPY => {
+				unimplemented!()
+			}
+			Opcode::CODESIZE => {
+				unimplemented!()
+			}
+			Opcode::GASPRICE => {
+				unimplemented!()
+			}
+			Opcode::EXTCODESIZE => {
+				unimplemented!()
+			}
+			Opcode::EXTCODECOPY => {
+				unimplemented!()
+			}
+			Opcode::RETURNDATACOPY => {
+				unimplemented!()
+			}
+			Opcode::RETURNDATASIZE => {
+				unimplemented!()
+			}
+			Opcode::BLOCKHASH => {
+				unimplemented!()
+			}
+			Opcode::COINBASE => {
+				unimplemented!()
+			}
+			Opcode::TIMESTAMP => {
+				unimplemented!()
+			}
+			Opcode::NUMBER => {
+				unimplemented!()
+			}
+			Opcode::DIFFICULTY => {
+				unimplemented!()
+			}
+			Opcode::GASLIMIT => {
+				unimplemented!()
+			}
+			Opcode::PC => {
+				unimplemented!()
+			}
+			Opcode::POP => {
+				unimplemented!()
+			}
+			Opcode::GAS => {
+				unimplemented!()
+			}
+			Opcode::JUMP => {
+				unimplemented!()
+			}
+			Opcode::JUMP1 => {
+				unimplemented!()
+			}
+			Opcode::JUMPDEST => {
+				unimplemented!()
+			}
+			Opcode::CREATE => {
+				unimplemented!()
+			}
+			Opcode::CALL => {
+				unimplemented!()
+			}
+			Opcode::CALLCODE => {
+				unimplemented!()
+			}
+			Opcode::RETURN => {
+				unimplemented!()
+			}
+			Opcode::DELEGATECALL => {
+				unimplemented!()
+			}
+			Opcode::INVALID => {
+				unimplemented!()
+			}
+			Opcode::SUICIDE => {
+				unimplemented!()
+			}
 			Opcode::SLOAD => {
 				self.stack_pointer -= 1;
 				let s1 = self.registers[self.stack_pointer];

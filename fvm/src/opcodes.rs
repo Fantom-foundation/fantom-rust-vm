@@ -66,6 +66,11 @@ pub enum Opcode {
     LOG(usize),
     INVALID,
     SUICIDE,
+    CREATE,
+    CALL,
+    CALLCODE,
+    RETURN,
+    DELEGATECALL
 }
 
 impl<'a> From<&'a u8> for Opcode {
@@ -203,6 +208,11 @@ impl<'a> From<&'a u8> for Opcode {
             0xa3 => Opcode::LOG(3),
             0xa4 => Opcode::LOG(4),
 
+            0xf0 => Opcode::CREATE,
+            0xf1 => Opcode::CALL,
+            0xf2 => Opcode::CALLCODE,
+            0xf3 => Opcode::RETURN,
+            0xf4 => Opcode::DELEGATECALL,
             0xfe => Opcode::INVALID,
             0xff => Opcode::SUICIDE,
             _ => Opcode::INVALID,

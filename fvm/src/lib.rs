@@ -4,7 +4,6 @@ extern crate log;
 extern crate trie;
 extern crate keccak_hash;
 
-mod account;
 mod errors;
 mod eth_log;
 mod memory;

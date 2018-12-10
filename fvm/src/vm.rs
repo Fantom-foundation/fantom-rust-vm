@@ -279,16 +279,20 @@ impl VM {
 				self.registers[self.stack_pointer] = ret;
 			}
 			Opcode::SHA3 => {
-				self.stack_pointer -= 1;
 				let offset = self.registers[self.stack_pointer];
 				let size = self.registers[self.stack_pointer - 1];
 				if let Some(ref mut mem) = self.memory {
 					let k = keccak(mem.read_slice(offset.into(), size.into()));
+					println!("k is: {:?}", k);
 					self.registers[self.stack_pointer - 1] = M256::from(&*k);
+					self.pc += 1;
 				}
+
 			}
 			Opcode::ADDRESS => {
-				unimplemented!()
+				if let Some(addr) = self.address {
+					self.registers[self.stack_pointer] = addr.clone().into();
+				}
 			}
 			Opcode::BALANCE => {
 				unimplemented!()
@@ -425,6 +429,7 @@ impl VM {
 				let value = self.registers[self.stack_pointer - 1];
 				if let Some(ref mut mem) = self.memory {
 					mem.write(offset, value)?;
+					self.pc += 1;
 				} else {
 					return Err(VMError::MemoryError);
 				}
@@ -435,11 +440,13 @@ impl VM {
 				let value = self.registers[self.stack_pointer - 1] % 256.into();
 				if let Some(ref mut mem) = self.memory {
 					mem.write_byte(offset, (value.0.low_u32() & 0xFF) as u8)?;
+					self.pc += 1;
 				}
 			}
 			Opcode::MSIZE => {
 				if let Some(ref mut mem) = self.memory {
 					self.registers[self.stack_pointer] = mem.size();
+					self.pc += 1;
 				} else {
 					return Err(VMError::MemoryError);
 				}
@@ -833,8 +840,9 @@ mod tests {
 
 	#[test]
 	fn test_sha3_opcode() {
-		let default_code = vec![0x60, 0x00, 0x60, 0x05, 0x60, 0x01, 0x60, 0x01, 0x20];
+		let default_code = vec![0x60, 0x05, 0x60, 0x00, 0x52, 0x20];
 		let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
+		assert!(vm.execute_one().is_ok());
 		assert!(vm.execute_one().is_ok());
 		assert!(vm.execute_one().is_ok());
 		assert!(vm.execute_one().is_ok());

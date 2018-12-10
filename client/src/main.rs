@@ -7,7 +7,7 @@ extern crate log;
 extern crate env_logger;
 extern crate rand;
 extern crate uuid;
-extern crate crypto;
+extern crate sodiumoxide;
 
 use std::{fs, io};
 use std::process::exit;
@@ -38,15 +38,18 @@ pub fn main() {
         debug!("Genesis block exists!");
     } else {
         debug!("Genesis block does not exist, please create it.");
-        exit(1);
     }
 
     if let Some(account_matches) = matches.subcommand_matches("account") {
-        if let Some(new_matches) = account_matches.subcommand_matches("new") {
+        if let Some(_) = account_matches.subcommand_matches("new") {
+            debug!("Creating new account");
             match keys::generate_random_keypair() {
                 Ok((secret_key, public_key)) => {
                     let account_id = uuid::Uuid::new_v4();
-
+                    println!("Account ID is: {:?}", account_id);
+                    println!("Public Key is: {:?}", public_key);
+                    println!("Secret Key is: {:?}", secret_key);
+                    exit(0);
                 },
                 Err(e) => {
                     error!("There was an error creating a new account: {:?}", e);

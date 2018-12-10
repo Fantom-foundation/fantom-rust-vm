@@ -6,6 +6,7 @@ use eth_log::Log;
 use memory::{Memory, SimpleMemory};
 use opcodes::Opcode;
 use storage::Storage;
+use keccak_hash::keccak;
 
 pub struct VM {
 	address: Option<Address>,
@@ -50,6 +51,7 @@ impl VM {
 		self
 	}
 
+	/// Creates a VM with a random address, mainly for testing purposes
 	pub fn with_random_address(mut self) -> VM {
 		self.address = Some(Address::random());
 		self
@@ -277,7 +279,13 @@ impl VM {
 				self.registers[self.stack_pointer] = ret;
 			}
 			Opcode::SHA3 => {
-				unimplemented!()
+				self.stack_pointer -= 1;
+				let offset = self.registers[self.stack_pointer];
+				let size = self.registers[self.stack_pointer - 1];
+				if let Some(ref mut mem) = self.memory {
+					let k = keccak(mem.read_slice(offset.into(), size.into()));
+					self.registers[self.stack_pointer - 1] = M256::from(&*k);
+				}
 			}
 			Opcode::ADDRESS => {
 				unimplemented!()
@@ -340,10 +348,10 @@ impl VM {
 				unimplemented!()
 			}
 			Opcode::PC => {
-				unimplemented!()
+				self.registers[self.stack_pointer] = (self.pc - 1).into();
 			}
 			Opcode::POP => {
-				unimplemented!()
+				self.stack_pointer -= 1;
 			}
 			Opcode::GAS => {
 				unimplemented!()
@@ -819,6 +827,15 @@ mod tests {
 		let default_code = vec![0x60, 0x00, 0x60, 0x05, 0x55];
 		let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
 		vm.storage = Some(Storage::new(vm.address.unwrap()));
+		assert!(vm.execute_one().is_ok());
+		assert!(vm.execute_one().is_ok());
+	}
+
+	#[test]
+	fn test_sha3_opcode() {
+		let default_code = vec![0x60, 0x00, 0x60, 0x05, 0x60, 0x01, 0x60, 0x01, 0x20];
+		let mut vm = VM::new(default_code).with_simple_memory().with_random_address();
+		assert!(vm.execute_one().is_ok());
 		assert!(vm.execute_one().is_ok());
 		assert!(vm.execute_one().is_ok());
 	}

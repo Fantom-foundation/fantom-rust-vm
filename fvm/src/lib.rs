@@ -2,6 +2,7 @@ extern crate bigint;
 extern crate env_logger;
 extern crate log;
 extern crate trie;
+extern crate keccak_hash;
 
 mod account;
 mod errors;

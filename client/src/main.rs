@@ -1,3 +1,5 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+#[macro_use] extern crate rocket;
 #[macro_use]
 extern crate clap;
 extern crate fvm;
@@ -69,6 +71,7 @@ pub fn main() {
         }
     }
 
+    servers::web::start_web();
     println!("Gooodbye!");
     exit(0);
 }

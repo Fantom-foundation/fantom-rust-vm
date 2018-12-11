@@ -5,4 +5,3 @@ extern crate tempdir;
 extern crate trie;
 
 pub mod db;
-pub mod account;

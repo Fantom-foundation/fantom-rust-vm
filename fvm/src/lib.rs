@@ -9,4 +9,5 @@ mod eth_log;
 mod memory;
 mod opcodes;
 mod storage;
+mod gas_prices;
 pub mod vm;

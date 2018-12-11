@@ -361,10 +361,16 @@ impl VM {
 				unimplemented!()
 			}
 			Opcode::JUMP => {
-				unimplemented!()
+				let new_pc = self.registers[self.stack_pointer];
+				self.pc = new_pc.as_usize();
 			}
-			Opcode::JUMP1 => {
-				unimplemented!()
+			Opcode::JUMPI => {
+				self.stack_pointer -= 1;
+				let destination = self.registers[self.stack_pointer];
+				let check = self.registers[self.stack_pointer - 1];
+				if check.as_usize() == 0 {
+					self.pc = destination.as_usize();
+				}
 			}
 			Opcode::JUMPDEST => {
 				unimplemented!()

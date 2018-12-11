@@ -51,7 +51,7 @@ pub enum Opcode {
     SLOAD,
     SSTORE,
     JUMP,
-    JUMP1,
+    JUMPI,
     PC,
     POP,
     MLOAD,
@@ -76,6 +76,7 @@ pub enum Opcode {
 impl<'a> From<&'a u8> for Opcode {
     fn from(bytes: &u8) -> Self {
         match bytes {
+            // Math, Comparison, and Bitwise Logic Operations
             0x00 => Opcode::STOP,
             0x01 => Opcode::ADD,
             0x02 => Opcode::MUL,
@@ -99,7 +100,11 @@ impl<'a> From<&'a u8> for Opcode {
             0x18 => Opcode::XOR,
             0x19 => Opcode::NOT,
             0x1a => Opcode::BYTE,
+
+            // Cryptographic Operations
             0x20 => Opcode::SHA3,
+
+            // Environmental information Operations
             0x30 => Opcode::ADDRESS,
             0x31 => Opcode::BALANCE,
             0x32 => Opcode::ORIGIN,
@@ -108,7 +113,6 @@ impl<'a> From<&'a u8> for Opcode {
             0x35 => Opcode::CALLDATALOAD,
             0x36 => Opcode::CALLDATASIZE,
             0x37 => Opcode::CALLDATACOPY,
-
             0x38 => Opcode::CODESIZE,
             0x39 => Opcode::CODECOPY,
             0x3a => Opcode::GASPRICE,
@@ -116,6 +120,8 @@ impl<'a> From<&'a u8> for Opcode {
             0x3c => Opcode::EXTCODECOPY,
             0x3d => Opcode::RETURNDATASIZE,
             0x3e => Opcode::RETURNDATACOPY,
+
+            // Block data functions
             0x40 => Opcode::BLOCKHASH,
             0x41 => Opcode::COINBASE,
             0x42 => Opcode::TIMESTAMP,
@@ -123,6 +129,7 @@ impl<'a> From<&'a u8> for Opcode {
             0x44 => Opcode::DIFFICULTY,
             0x45 => Opcode::GASLIMIT,
 
+            // Stack, memory, storage, and flow operations
             0x50 => Opcode::POP,
             0x51 => Opcode::MLOAD,
             0x52 => Opcode::MSTORE,
@@ -130,11 +137,13 @@ impl<'a> From<&'a u8> for Opcode {
             0x54 => Opcode::SLOAD,
             0x55 => Opcode::SSTORE,
             0x56 => Opcode::JUMP,
-            0x57 => Opcode::JUMP1,
+            0x57 => Opcode::JUMPI,
             0x58 => Opcode::PC,
             0x59 => Opcode::MSIZE,
             0x5a => Opcode::GAS,
             0x5b => Opcode::JUMPDEST,
+
+            // Push operations
             0x60 => Opcode::PUSH(1),
             0x61 => Opcode::PUSH(2),
             0x62 => Opcode::PUSH(3),
@@ -168,6 +177,7 @@ impl<'a> From<&'a u8> for Opcode {
             0x7e => Opcode::PUSH(31),
             0x7f => Opcode::PUSH(32),
 
+            // Duplication operations
             0x80 => Opcode::DUP(1),
             0x81 => Opcode::DUP(2),
             0x82 => Opcode::DUP(3),
@@ -185,6 +195,7 @@ impl<'a> From<&'a u8> for Opcode {
             0x8e => Opcode::DUP(15),
             0x8f => Opcode::DUP(16),
 
+            // Swap operations
             0x90 => Opcode::SWAP(1),
             0x91 => Opcode::SWAP(2),
             0x92 => Opcode::SWAP(3),
@@ -202,12 +213,14 @@ impl<'a> From<&'a u8> for Opcode {
             0x9e => Opcode::SWAP(15),
             0x9f => Opcode::SWAP(16),
 
+            // Logging operations
             0xa0 => Opcode::LOG(0),
             0xa1 => Opcode::LOG(1),
             0xa2 => Opcode::LOG(2),
             0xa3 => Opcode::LOG(3),
             0xa4 => Opcode::LOG(4),
 
+            // System operations
             0xf0 => Opcode::CREATE,
             0xf1 => Opcode::CALL,
             0xf2 => Opcode::CALLCODE,

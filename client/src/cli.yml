@@ -27,7 +27,18 @@ args:
         short: g
         help: Path to the Genesis File
         takes_value: true
-        default_value: genesis.json
+        default_value: /tmp/fvm/genesis.json
+    - network-id:
+        short: n
+        help: Network ID
+        takes_value: true
+        default_value: "1983"
+    - chain:
+        short: c
+        help: JSON file specifying the chain parameters
+        takes_value: true
+    
+
 subcommands:
     - transaction-test:
         about: Tests processing the bytecode of a transaction

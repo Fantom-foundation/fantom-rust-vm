@@ -59,4 +59,8 @@ subcommands:
                     - keyfile-path:
                         short: k
                         help: Path to save the keyfile
+                    - ACCOUNT_NAME:
+                        help: Name of the account to create
+                        required: true
+                        index: 1
                         

@@ -9,16 +9,27 @@ extern crate log;
 extern crate env_logger;
 extern crate rand;
 extern crate uuid;
-extern crate sodiumoxide;
+extern crate rpassword;
+extern crate openssl;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
+extern crate serde_json;
+extern crate pbkdf2;
 
 use std::{fs, io};
 use std::process::exit;
+use rand::os::OsRng;
+use rand::Rng;
 
 use clap::App;
-use fvm::vm::VM;
 
 pub mod servers;
 pub mod keys;
+
+use openssl::symm;
+use openssl::rsa::{Padding, Rsa};
+use openssl::symm::Cipher;
 
 pub fn main() {
     env_logger::init();
@@ -45,12 +56,13 @@ pub fn main() {
     if let Some(account_matches) = matches.subcommand_matches("account") {
         if let Some(_) = account_matches.subcommand_matches("new") {
             debug!("Creating new account");
+            let passphrase = keys::get_passphrase();
             match keys::generate_random_keypair() {
-                Ok((secret_key, public_key)) => {
+                Ok(keypair) => {
+                    let cipher = symm::Cipher::aes_128_ctr();
+                    let passphrase = passphrase.expect("Unable to get passphrase");
+                    let r = pbkdf2::pbkdf2_simple(&passphrase.as_str(), 10).expect("Unable to generate key");
                     let account_id = uuid::Uuid::new_v4();
-                    println!("Account ID is: {:?}", account_id);
-                    println!("Public Key is: {:?}", public_key);
-                    println!("Secret Key is: {:?}", secret_key);
                     exit(0);
                 },
                 Err(e) => {
@@ -63,7 +75,7 @@ pub fn main() {
 
     if let Some(matches) = matches.subcommand_matches("transaction-test") {
         if matches.is_present("INPUT") {
-            let filename = matches.value_of("INPUT").unwrap();
+            let _filename = matches.value_of("INPUT").unwrap();
             // let _bytecode = read_bytecode(filename);
         } else {
             error!("Please specify the file containing the EVM bytecode");

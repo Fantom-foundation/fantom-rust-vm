@@ -16,10 +16,12 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate rustc_serialize;
-extern crate pbkdf2;
+//extern crate pbkdf2;
 extern crate hmac;
 extern crate sha2;
 extern crate sha3;
+extern crate byteorder;
+extern crate base64;
 
 use std::{fs, io};
 use std::process::exit;
@@ -27,10 +29,16 @@ use std::process::exit;
 use clap::App;
 use rand::os::OsRng;
 use rand::Rng;
+use std::path::PathBuf;
+use byteorder::{ByteOrder, BigEndian};
 
-use hmac::{Hmac, Mac};
-use sha2::Sha256;
+use hmac::Hmac;
+use hmac::Mac;
+use sha2::{Sha256};
 use sha3::{Digest, Keccak256};
+
+use rustc_serialize::hex::ToHex;
+
 pub mod servers;
 pub mod keys;
 pub mod accounts;
@@ -88,7 +96,6 @@ pub fn main() {
                     for _ in 0..16 {
                         iv.push(generator.gen());
                     }
-                    let iv_string = str::from_utf8(&iv).expect("Unable to convert IV to string");
 
                     let data: &[u8] = &secret_key[0..secret_key.len()];
                     let ciphertext = symm::encrypt(
@@ -96,30 +103,45 @@ pub fn main() {
                         &key,
                         Some(&iv),
                         data).expect("Unable to encrypt secret key");
-                    let ciphertext = str::from_utf8(&ciphertext).expect("Unable to convert ciphertext to string");
+                    let ciphertext = ciphertext.to_hex();
                     
                     let context_flag = secp256k1::ContextFlag::Full;
                     let context = secp256k1::Secp256k1::with_caps(context_flag);
-                    let tmp = public_key.serialize_vec(&context, false);
-                    let address = str::from_utf8(&tmp).expect("Could not convert UTF-8 to String for PublicKey");
-
+                    let address = public_key.serialize_vec(&context, false).to_hex();
                     // This section generates a key from the passphrase so we don't have to keep the actual passphrase
                     // provided by the user
 
                     // How many hashing iterations to do
-                    let count = 64000 + rand::thread_rng().gen_range(0, 20000);
+                    
+                    let count: u32 = 64000 + rand::thread_rng().gen_range(0, 20000);
+                    debug!("Hashing salt {:?} times...", count);
                     let mut result: Vec<u8> = vec![];
+                    let mut dk: Vec<u8> = vec![];
                     let mut salt: Vec<u8> = vec![];
-                    for _ in 0..64 {
-                        salt.push(generator.gen())
+                    debug!("Creating salt");
+                    for _ in 0..16 {
+                        salt.push(generator.gen());
                     }
+                    debug!("Generated Salt: {:?}", salt);
                     let passphrase = passphrase.expect("Unable to get passphrase");
-                    let r = pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt, count, &mut result);
-
+                    debug!("Deriving passphrase from {:?}", passphrase);
+                    pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt[..], count as usize, &mut dk);
+                    debug!("KDF result is: {:#?}", result);
                     let mut bytes_to_hash: Vec<u8> = vec![];
                     for i in &result[16..32] {
                         bytes_to_hash.push(*i);
                     }
+                    let mut result = "$rpbkdf2$0$".to_string();
+                    let mut tmp = [0u8; 4];
+                    debug!("4 slot allocated");
+                    BigEndian::write_u32(&mut tmp, count);
+                    result.push_str(&base64::encode(&tmp));
+                    result.push('$');
+                    result.push_str(&base64::encode(&salt));
+                    result.push('$');
+                    result.push_str(&base64::encode(&dk));
+                    result.push('$');
+                    
                     bytes_to_hash.extend(ciphertext.bytes());
                     let mut hasher = Keccak256::new();
                     hasher.input(&bytes_to_hash);
@@ -127,14 +149,16 @@ pub fn main() {
                     let mac_string = str::from_utf8(mac).expect("Cannot convert mac to string");
                     println!("Account ID: {:?}", account_id.to_hyphenated().to_string());
                     println!("Public Address: {:?}", public_key);
-                    println!("Secret Key: {:?}", r);
+                    println!("Secret Key: {:?}", result);
                     println!("Passphrase: {:?}", passphrase);
                     println!("MAC is: {:?}", mac);
                     let new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3).with_cipher("aes-128-ctr".to_string())
                     .with_ciphertext(ciphertext.to_string())
-                    .with_cipher_params(iv_string.to_string())
+                    .with_cipher_params(iv.to_hex())
                     .with_kdf("pbkdf".to_string())
                     .with_mac(mac_string.to_string());
+
+                    println!("New account is: {:#?}", new_account);
                     exit(0);
                 },
                 Err(e) => {
@@ -173,6 +197,10 @@ fn create_directories(path: &str) -> Result<(), io::Error> {
 fn create_data_directory(path: &str) -> Result<(), io::Error> {
     fs::create_dir_all(path.to_string() + "data")?;
     Ok(())
+}
+
+fn data_directory(path: &str) -> PathBuf {
+    PathBuf::from(path.to_string()+"data")
 }
 
 fn create_keys_directory(path: &str) -> Result<(), io::Error> {

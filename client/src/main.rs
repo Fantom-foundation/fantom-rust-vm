@@ -15,21 +15,31 @@ extern crate openssl;
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
+extern crate rustc_serialize;
 extern crate pbkdf2;
+extern crate hmac;
+extern crate sha2;
+extern crate sha3;
 
 use std::{fs, io};
 use std::process::exit;
+
+use clap::App;
 use rand::os::OsRng;
 use rand::Rng;
 
-use clap::App;
-
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use sha3::{Digest, Keccak256};
 pub mod servers;
 pub mod keys;
+pub mod accounts;
 
 use openssl::symm;
-use openssl::rsa::{Padding, Rsa};
-use openssl::symm::Cipher;
+
+use std::str;
+
+type HmacSha256 = Hmac<Sha256>;
 
 pub fn main() {
     env_logger::init();
@@ -53,16 +63,78 @@ pub fn main() {
         debug!("Genesis block does not exist, please create it.");
     }
 
+    // This handles the user wanting to do account-related functions
     if let Some(account_matches) = matches.subcommand_matches("account") {
+        // This handles the user wanting to create a new account
         if let Some(_) = account_matches.subcommand_matches("new") {
             debug!("Creating new account");
+            // This is the passphrase we'll use to encrypt their secret key, and they will need to
+            // provide to decrypt it
             let passphrase = keys::get_passphrase();
+            // Generate a random public/private key
             match keys::generate_random_keypair() {
-                Ok(keypair) => {
-                    let cipher = symm::Cipher::aes_128_ctr();
-                    let passphrase = passphrase.expect("Unable to get passphrase");
-                    let r = pbkdf2::pbkdf2_simple(&passphrase.as_str(), 10).expect("Unable to generate key");
+                Ok((secret_key, public_key)) => {
+                    // Generate a random account ID
                     let account_id = uuid::Uuid::new_v4();
+                    let mut generator = OsRng::new().expect("Unable to generate OsRng");
+                    
+                    // This section generates the ciphertext version of the secret key
+                    let cipher = symm::Cipher::aes_128_ctr();
+                    let mut key: Vec<u8> = vec![];
+                    let mut iv: Vec<u8> = vec![];
+                    for _ in 0..16 {
+                        key.push(generator.gen());
+                    }
+                    for _ in 0..16 {
+                        iv.push(generator.gen());
+                    }
+                    let iv_string = str::from_utf8(&iv).expect("Unable to convert IV to string");
+
+                    let data: &[u8] = &secret_key[0..secret_key.len()];
+                    let ciphertext = symm::encrypt(
+                        cipher,
+                        &key,
+                        Some(&iv),
+                        data).expect("Unable to encrypt secret key");
+                    let ciphertext = str::from_utf8(&ciphertext).expect("Unable to convert ciphertext to string");
+                    
+                    let context_flag = secp256k1::ContextFlag::Full;
+                    let context = secp256k1::Secp256k1::with_caps(context_flag);
+                    let tmp = public_key.serialize_vec(&context, false);
+                    let address = str::from_utf8(&tmp).expect("Could not convert UTF-8 to String for PublicKey");
+
+                    // This section generates a key from the passphrase so we don't have to keep the actual passphrase
+                    // provided by the user
+
+                    // How many hashing iterations to do
+                    let count = 64000 + rand::thread_rng().gen_range(0, 20000);
+                    let mut result: Vec<u8> = vec![];
+                    let mut salt: Vec<u8> = vec![];
+                    for _ in 0..64 {
+                        salt.push(generator.gen())
+                    }
+                    let passphrase = passphrase.expect("Unable to get passphrase");
+                    let r = pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt, count, &mut result);
+
+                    let mut bytes_to_hash: Vec<u8> = vec![];
+                    for i in &result[16..32] {
+                        bytes_to_hash.push(*i);
+                    }
+                    bytes_to_hash.extend(ciphertext.bytes());
+                    let mut hasher = Keccak256::new();
+                    hasher.input(&bytes_to_hash);
+                    let mac: &[u8] = &hasher.result();
+                    let mac_string = str::from_utf8(mac).expect("Cannot convert mac to string");
+                    println!("Account ID: {:?}", account_id.to_hyphenated().to_string());
+                    println!("Public Address: {:?}", public_key);
+                    println!("Secret Key: {:?}", r);
+                    println!("Passphrase: {:?}", passphrase);
+                    println!("MAC is: {:?}", mac);
+                    let new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3).with_cipher("aes-128-ctr".to_string())
+                    .with_ciphertext(ciphertext.to_string())
+                    .with_cipher_params(iv_string.to_string())
+                    .with_kdf("pbkdf".to_string())
+                    .with_mac(mac_string.to_string());
                     exit(0);
                 },
                 Err(e) => {

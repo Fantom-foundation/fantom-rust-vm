@@ -10,9 +10,6 @@ use secp256k1;
 use secp256k1::key::{PublicKey, SecretKey};
 use secp256k1::Error;
 
-use openssl::rsa::{Padding, Rsa};
-use openssl::symm::Cipher;
-
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Password(String);
 

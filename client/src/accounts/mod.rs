@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Account {
   address: String,
   id: String,
@@ -56,7 +56,7 @@ impl Account {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AccountCrypto {
   cipher: Option<String>,
   ciphertext: Option<String>,
@@ -80,7 +80,7 @@ impl AccountCrypto {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AccountKDFParams {
   dklen: Option<usize>,
   prf: Option<String>,

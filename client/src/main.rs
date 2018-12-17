@@ -23,6 +23,7 @@ extern crate sha2;
 extern crate sha3;
 extern crate byteorder;
 extern crate base64;
+extern crate chrono;
 
 use std::{fs, io};
 use std::process::exit;
@@ -31,10 +32,10 @@ use clap::App;
 use rand::os::OsRng;
 use rand::Rng;
 use std::path::PathBuf;
-use byteorder::{ByteOrder, BigEndian};
+
+use std::io::prelude::*;
 
 use hmac::Hmac;
-use hmac::Mac;
 use sha2::{Sha256};
 use sha3::{Digest, Keccak256};
 
@@ -47,6 +48,7 @@ pub mod accounts;
 use openssl::symm;
 
 use std::str;
+use std::fs::File;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -125,24 +127,28 @@ pub fn main() {
                     hasher.input(&bytes_to_hash);
                     let mac: &[u8] = &hasher.result();
                     let mac = mac.to_hex();
-                    println!("Account ID: {:?}", account_id.to_hyphenated().to_string());
-                    println!("Public Address: {:?}", public_key);
-                    println!("Secret Key: {:?}", ciphertext);
-                    println!("Passphrase: {:?}", passphrase);
-                    println!("MAC is: {:?}", mac);
-                    println!("Salt is: {:#?}", salt);
-                    println!("DK is: {:#?}", dk);
-
                     let mut new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3);
-                    new_account = new_account   .with_cipher("aes-128-ctr".to_string())
+                    new_account = new_account.with_cipher("aes-128-ctr".to_string())
                     .with_ciphertext(ciphertext.to_string())
                     .with_cipher_params(iv.to_hex())
                     .with_kdf("pbkdf2".to_string())
                     .with_pdkdf2_params(dk.len(), salt.to_hex().to_string(), "hmac-sha256".to_string(), count as usize)
                     .with_mac(mac.to_string());
-
-                    println!("New account is: {:#?}", new_account);
-                    exit(0);
+                    let account_json = serde_json::to_string(&new_account).unwrap();
+                    let now = chrono::Utc::now();
+                    let filename = "UTC--".to_string() + &now.format("%Y-%m-%d").to_string() + "T" + &now.format("%H-%M-%SZ").to_string() + "--" + &account_id.to_hyphenated().to_string() + ".json";
+                    let path = key_file_path(base_dir, &filename);
+                    debug!("Path is: {:#?}", path);
+                    if let Ok(mut fh) = File::create(path) {
+                        match fh.write_all(account_json.as_bytes()) {
+                            Ok(_) => { info!("Keyfile written: {}", filename) }
+                            Err(e) => { error!("Error writing keyfile: {:#?}", e) }
+                        }
+                        exit(0);
+                    } else {
+                        error!("Unable to create keyfile: {}", filename);
+                        exit(1);
+                    }
                 },
                 Err(e) => {
                     error!("There was an error creating a new account: {:?}", e);
@@ -209,4 +215,8 @@ fn create_lachesis_directory(path: &str) -> Result<(), io::Error> {
 fn genesis_block_exists(path: &str) -> bool {
     let genesis_block_path = path.to_string() + "/eth/genesis.json";
     std::path::Path::new(&genesis_block_path).exists()
+}
+
+fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {
+    std::path::PathBuf::from(base_dir.to_string() + &filename)
 }

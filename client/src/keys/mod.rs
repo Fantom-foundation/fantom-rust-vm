@@ -5,10 +5,11 @@ use std::io::{BufReader, BufRead};
 
 use std::fs::File;
 use std::fmt;
-
+use std::string::ToString;
 use secp256k1;
 use secp256k1::key::{PublicKey, SecretKey};
 use secp256k1::Error;
+
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Password(String);
@@ -31,6 +32,11 @@ impl<'a> From<&'a str> for Password {
 	}
 }
 
+impl ToString for Password {
+	fn to_string(&self) -> String {
+		String::from(self.0.clone())
+	}
+}
 
 impl Password {
 	pub fn as_bytes(&self) -> &[u8] {

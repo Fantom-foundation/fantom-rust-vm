@@ -16,7 +16,8 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate rustc_serialize;
-//extern crate pbkdf2;
+extern crate pbkdf2;
+extern crate mac;
 extern crate hmac;
 extern crate sha2;
 extern crate sha3;
@@ -111,52 +112,32 @@ pub fn main() {
                     // This section generates a key from the passphrase so we don't have to keep the actual passphrase
                     // provided by the user
 
-                    // How many hashing iterations to do
-                    
                     let count: u32 = 64000 + rand::thread_rng().gen_range(0, 20000);
-                    debug!("Hashing salt {:?} times...", count);
-                    let mut result: Vec<u8> = vec![];
-                    let mut dk: Vec<u8> = vec![];
-                    let mut salt: Vec<u8> = vec![];
-                    debug!("Creating salt");
-                    for _ in 0..16 {
-                        salt.push(generator.gen());
-                    }
-                    debug!("Generated Salt: {:?}", salt);
+                    let salt: Vec<u8> = generator.gen_iter::<u8>().take(16).collect();
+
                     let passphrase = passphrase.expect("Unable to get passphrase");
-                    debug!("Deriving passphrase from {:?}", passphrase);
-                    pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt[..], count as usize, &mut dk);
-                    debug!("KDF result is: {:#?}", result);
+                    let mut dk = [0u8; 32];
+                    pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt, count as usize, &mut dk);
                     let mut bytes_to_hash: Vec<u8> = vec![];
-                    for i in &result[16..32] {
-                        bytes_to_hash.push(*i);
-                    }
-                    let mut result = "$rpbkdf2$0$".to_string();
-                    let mut tmp = [0u8; 4];
-                    debug!("4 slot allocated");
-                    BigEndian::write_u32(&mut tmp, count);
-                    result.push_str(&base64::encode(&tmp));
-                    result.push('$');
-                    result.push_str(&base64::encode(&salt));
-                    result.push('$');
-                    result.push_str(&base64::encode(&dk));
-                    result.push('$');
-                    
+                    bytes_to_hash.extend(&dk[16..32]);
                     bytes_to_hash.extend(ciphertext.bytes());
                     let mut hasher = Keccak256::new();
                     hasher.input(&bytes_to_hash);
                     let mac: &[u8] = &hasher.result();
-                    let mac_string = str::from_utf8(mac).expect("Cannot convert mac to string");
+                    let mac = mac.to_hex();
                     println!("Account ID: {:?}", account_id.to_hyphenated().to_string());
                     println!("Public Address: {:?}", public_key);
-                    println!("Secret Key: {:?}", result);
+                    println!("Secret Key: {:?}", ciphertext);
                     println!("Passphrase: {:?}", passphrase);
                     println!("MAC is: {:?}", mac);
+                    println!("Salt is: {:#?}", salt);
+                    println!("DK is: {:#?}", dk);
+
                     let new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3).with_cipher("aes-128-ctr".to_string())
                     .with_ciphertext(ciphertext.to_string())
                     .with_cipher_params(iv.to_hex())
                     .with_kdf("pbkdf".to_string())
-                    .with_mac(mac_string.to_string());
+                    .with_mac(mac.to_string());
 
                     println!("New account is: {:#?}", new_account);
                     exit(0);

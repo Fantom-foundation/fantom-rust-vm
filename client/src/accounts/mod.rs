@@ -45,7 +45,6 @@ impl Account {
     self
   }
 
-//n: Option<usize>, p: Option<usize>, r: Option<usize>
   pub fn with_pdkdf2_params(mut self, dklen: usize, salt: String, prf: usize, c: usize) -> Account {
     self.crypto.kdfparams.dklen = Some(dklen);
     self.crypto.kdfparams.salt = Some(salt);
@@ -64,6 +63,7 @@ pub struct AccountCrypto {
   kdfparams: AccountKDFParams,
   mac: Option<String>
 }
+
 
 impl AccountCrypto {
   pub fn new() -> AccountCrypto {

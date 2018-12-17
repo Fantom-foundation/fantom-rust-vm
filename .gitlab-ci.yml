@@ -3,6 +3,9 @@ image: 'rust:latest'
 stages:
   - test
 
+before_script:
+  - rustup install nightly
+
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/cargo
   APT_CACHE_DIR: $CI_PROJECT_DIR/apt
@@ -12,7 +15,7 @@ test:
   script:
     - rustc --version
     - cargo --version
-    - cargo test --verbose
+    - cargo +nightly test --verbose
 
 cache:
   paths:

@@ -1,4 +1,4 @@
 client-dev:
 	cargo build
-	mv target/debug/client /usr/local/bin/fvm-client
-	chmod ugo+x /usr/local/bin/fvm-client
+	mv target/debug/client ~/.fantom/bin/fvm-client
+	chmod ugo+x ~/.fantom/bin/fvm-client

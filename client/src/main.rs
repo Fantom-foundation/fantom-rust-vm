@@ -133,10 +133,12 @@ pub fn main() {
                     println!("Salt is: {:#?}", salt);
                     println!("DK is: {:#?}", dk);
 
-                    let new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3).with_cipher("aes-128-ctr".to_string())
+                    let mut new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3);
+                    new_account = new_account   .with_cipher("aes-128-ctr".to_string())
                     .with_ciphertext(ciphertext.to_string())
                     .with_cipher_params(iv.to_hex())
-                    .with_kdf("pbkdf".to_string())
+                    .with_kdf("pbkdf2".to_string())
+                    .with_pdkdf2_params(dk.len(), salt.to_hex().to_string(), "hmac-sha256".to_string(), count as usize)
                     .with_mac(mac.to_string());
 
                     println!("New account is: {:#?}", new_account);

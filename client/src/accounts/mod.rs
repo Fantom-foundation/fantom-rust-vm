@@ -10,8 +10,10 @@ pub struct Account {
 
 impl Account {
   pub fn new(id: String, address: String, version: usize) -> Account {
+    let end = address.len();
+    let start = end - 40;
     Account {
-      address: address,
+      address: address[start..end].to_string(),
       crypto: AccountCrypto::new(),
       id: id,
       version: version
@@ -45,7 +47,7 @@ impl Account {
     self
   }
 
-  pub fn with_pdkdf2_params(mut self, dklen: usize, salt: String, prf: usize, c: usize) -> Account {
+  pub fn with_pdkdf2_params(mut self, dklen: usize, salt: String, prf: String, c: usize) -> Account {
     self.crypto.kdfparams.dklen = Some(dklen);
     self.crypto.kdfparams.salt = Some(salt);
     self.crypto.kdfparams.prf = Some(prf);
@@ -81,7 +83,7 @@ impl AccountCrypto {
 #[derive(Debug)]
 pub struct AccountKDFParams {
   dklen: Option<usize>,
-  prf: Option<usize>,
+  prf: Option<String>,
   c: Option<usize>,
   n: Option<usize>,
   p: Option<usize>,

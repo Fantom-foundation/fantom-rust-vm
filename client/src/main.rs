@@ -24,6 +24,10 @@ extern crate sha3;
 extern crate byteorder;
 extern crate base64;
 extern crate chrono;
+extern crate block;
+extern crate rlp;
+extern crate world;
+extern crate bigint;
 
 use std::{fs, io};
 use std::process::exit;
@@ -44,6 +48,7 @@ use rustc_serialize::hex::ToHex;
 pub mod servers;
 pub mod keys;
 pub mod accounts;
+pub mod blocks;
 
 use openssl::symm;
 
@@ -70,6 +75,7 @@ pub fn main() {
     debug!("Checking for genesis block...");
     if genesis_block_exists(base_dir) {
         debug!("Genesis block exists!");
+        let genesis_block_data = load_genesis_block(base_dir).expect("Unable to load genesis block");
     } else {
         debug!("Genesis block does not exist, please create it.");
     }
@@ -168,6 +174,7 @@ pub fn main() {
         }
     }
 
+    
     servers::web::start_web();
     println!("Gooodbye!");
     exit(0);
@@ -215,6 +222,23 @@ fn create_lachesis_directory(path: &str) -> Result<(), io::Error> {
 fn genesis_block_exists(path: &str) -> bool {
     let genesis_block_path = path.to_string() + "/eth/genesis.json";
     std::path::Path::new(&genesis_block_path).exists()
+}
+
+fn load_genesis_block(path: &str) -> Result<Vec<u8>, std::io::Error> {
+    let genesis_block_path = path.to_string() + "/eth/genesis.json";
+    match File::open(genesis_block_path) {
+        Ok(mut fh) => {
+            let mut buf: Vec<u8> = vec![];
+            match fh.read_to_end(&mut buf) {
+                Ok(bytes) => { info!("Read genesis block!") }
+                Err(e) => { error!("Unable to read genesis block") }
+            };
+            Ok(buf)
+        },
+        Err(e) => {
+            Err(e)
+        }
+    }
 }
 
 fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {

@@ -161,6 +161,7 @@ dependencies = [
  "env_logger 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "etcommon-bigint 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "etcommon-block 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "etcommon-bloom 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "etcommon-rlp 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "etcommon-trie 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fvm 0.1.0",

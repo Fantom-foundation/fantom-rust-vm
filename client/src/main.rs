@@ -28,6 +28,7 @@ extern crate block;
 extern crate rlp;
 extern crate world;
 extern crate bigint;
+extern crate bloom;
 
 use std::{fs, io};
 use std::process::exit;
@@ -174,7 +175,16 @@ pub fn main() {
         }
     }
 
-    
+    info!("Opening DB...");
+    match world::db::create_persistent_db(&(base_dir.to_string() + "data/"), "fantom") {
+        Ok((rdb, store)) => {
+            info!("Created: {:?}", rdb);
+        },
+        Err(e) => {
+            error!("Could not create database: {:?}", e);
+            exit(1);
+        }
+    }
     servers::web::start_web();
     println!("Gooodbye!");
     exit(0);

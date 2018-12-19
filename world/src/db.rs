@@ -8,7 +8,7 @@ use std::fs;
 // Database imports
 use rkv::{Manager, Rkv, Store, StoreError, Value};
 
-type RDB = std::sync::Arc<std::sync::RwLock<rkv::Rkv>>;
+pub type RDB = std::sync::Arc<std::sync::RwLock<rkv::Rkv>>;
 
 fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     let tempdir = TempDir::new("testing").unwrap();
@@ -22,13 +22,13 @@ fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     Err(StoreError::DirectoryDoesNotExistError(root.into()))
 }
 
-fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), StoreError> {
+pub fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), StoreError> {
     let root = path.to_string() + name + "/";
     fs::create_dir_all(root.clone())?;
     let root = Path::new(&root);
     let created_arc = Manager::singleton().write().unwrap().get_or_create(root, Rkv::new)?;
     if let Ok(k) = created_arc.read() {
-        if let Ok(a) = k.open_or_create("key_store") {
+        if let Ok(a) = k.open_or_create("store") {
             return Ok((created_arc.clone(), a));
         }
     }

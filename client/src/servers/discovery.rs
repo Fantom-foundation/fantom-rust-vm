@@ -1,9 +1,7 @@
-pub struct Discovery {
-
-}
+pub struct Discovery {}
 
 impl Discovery {
-  pub fn new() -> Discovery {
-    unimplemented!()
-  }
+    pub fn new() -> Discovery {
+        unimplemented!()
+    }
 }

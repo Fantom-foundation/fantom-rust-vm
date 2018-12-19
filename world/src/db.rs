@@ -2,8 +2,8 @@ use bigint::H256;
 use tempdir::TempDir;
 use trie::TrieMut;
 
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 // Database imports
 use rkv::{Manager, Rkv, Store, StoreError, Value};

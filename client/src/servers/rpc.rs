@@ -1,9 +1,7 @@
-pub struct RPC {
-
-}
+pub struct RPC {}
 
 impl RPC {
-  pub fn new() -> RPC {
-    unimplemented!()
-  }
+    pub fn new() -> RPC {
+        unimplemented!()
+    }
 }

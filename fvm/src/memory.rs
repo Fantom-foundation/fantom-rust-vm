@@ -62,11 +62,11 @@ impl Memory for SimpleMemory {
         self.memory[index.as_usize()].clone()
     }
 
-	fn read_slice(&self, init_off_u: U256, init_size_u: U256) -> &[u8] {
-		let off = init_off_u.low_u64() as usize;
-		let size = init_size_u.low_u64() as usize;
-        &self.memory[off..off+size]
-	}
+    fn read_slice(&self, init_off_u: U256, init_size_u: U256) -> &[u8] {
+        let off = init_off_u.low_u64() as usize;
+        let size = init_size_u.low_u64() as usize;
+        &self.memory[off..off + size]
+    }
 
     /// Writes a `word` at the specified index. This will resize the capacity
     /// if needed, and will overwrite any existing bytes if there is overlap.

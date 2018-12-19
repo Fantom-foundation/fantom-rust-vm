@@ -1,7 +1,7 @@
-use rlp::{Encodable, Decodable, RlpStream, DecoderError, UntrustedRlp};
-use bigint::{Address, Gas, H256, U256, B256, H64};
+use bigint::{Address, Gas, B256, H256, H64, U256};
 use bloom::LogsBloom;
 use fvm::eth_log::Log;
+use rlp::{Decodable, DecoderError, Encodable, RlpStream, UntrustedRlp};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Receipt {

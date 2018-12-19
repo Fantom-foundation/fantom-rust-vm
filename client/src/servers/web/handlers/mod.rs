@@ -1,4 +1,3 @@
-
 #[get("/health")]
 pub fn health() -> &'static str {
     "OK"
@@ -6,22 +5,22 @@ pub fn health() -> &'static str {
 
 #[get("/account/<account_hash>")]
 pub fn account(account_hash: String) -> String {
-  account_hash
+    account_hash
 }
 
 #[get("/block/<hash>")]
 pub fn block(hash: String) -> String {
-  hash
+    hash
 }
 
 #[get("/blockById/<hash>")]
 pub fn block_by_id(hash: String) -> String {
-  hash
+    hash
 }
 
 #[get("/accounts")]
 pub fn accounts() -> String {
-  "OK".to_string()
+    "OK".to_string()
 }
 
 // #[post("/call", format = "application/json", data = "<input>")]
@@ -41,20 +40,20 @@ pub fn accounts() -> String {
 
 #[get("/transactions/<tx_hash>")]
 pub fn transactions(tx_hash: String) -> String {
-  tx_hash
+    tx_hash
 }
 
 #[get("/tx/<tx_hash>")]
 pub fn get_tx(tx_hash: String) -> String {
-  tx_hash
+    tx_hash
 }
 
 #[get("/info")]
 pub fn info() -> String {
-  "OK".to_string().into()
+    "OK".to_string().into()
 }
 
 #[get("/html/info")]
 pub fn html_info() -> String {
-  "OK".to_string().into()
+    "OK".to_string().into()
 }

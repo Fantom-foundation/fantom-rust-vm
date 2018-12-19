@@ -1,9 +1,7 @@
-pub struct General {
-
-}
+pub struct General {}
 
 impl General {
-  pub fn new() -> General {
-    unimplemented!()
-  }
+    pub fn new() -> General {
+        unimplemented!()
+    }
 }

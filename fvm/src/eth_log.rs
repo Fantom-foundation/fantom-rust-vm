@@ -1,7 +1,7 @@
 //! Contains the Log data structure
 
-use rlp::{Encodable, Decodable, RlpStream, DecoderError, UntrustedRlp};
-use bigint::{Address, Gas, H256, U256, B256, H64};
+use bigint::{Address, Gas, B256, H256, H64, U256};
+use rlp::{Decodable, DecoderError, Encodable, RlpStream, UntrustedRlp};
 
 /// A Log entry for the EVM
 #[derive(Debug, Clone, PartialEq, Eq)]

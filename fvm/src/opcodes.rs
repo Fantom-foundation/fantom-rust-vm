@@ -70,7 +70,7 @@ pub enum Opcode {
     CALL,
     CALLCODE,
     RETURN,
-    DELEGATECALL
+    DELEGATECALL,
 }
 
 impl<'a> From<&'a u8> for Opcode {

@@ -10,7 +10,7 @@ use rkv::{Manager, Rkv, Store, StoreError, Value};
 
 pub type RDB = std::sync::Arc<std::sync::RwLock<rkv::Rkv>>;
 
-fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
+pub fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     let tempdir = TempDir::new("testing").unwrap();
     let root = tempdir.path();
     let created_arc = Manager::singleton().write().unwrap().get_or_create(root, Rkv::new)?;

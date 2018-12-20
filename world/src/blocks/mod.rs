@@ -2,9 +2,10 @@ use bigint::{Address, Gas, B256, H256, H64, U256};
 use bloom::LogsBloom;
 use std::collections::HashSet;
 use std::sync::Arc;
-use world::{db::RDB, transaction::*};
+use {db::RDB, transaction::*};
 
 pub mod receipt;
+pub mod genesis;
 
 pub type LastHashes = Vec<H256>;
 

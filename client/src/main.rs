@@ -17,7 +17,6 @@ extern crate serde_derive;
 extern crate base64;
 extern crate bigint;
 extern crate block;
-extern crate bloom;
 extern crate byteorder;
 extern crate chrono;
 extern crate hmac;
@@ -48,7 +47,6 @@ use sha3::{Digest, Keccak256};
 use rustc_serialize::hex::ToHex;
 
 pub mod accounts;
-pub mod blocks;
 pub mod keys;
 pub mod servers;
 

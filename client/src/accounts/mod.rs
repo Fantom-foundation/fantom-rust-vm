@@ -3,7 +3,6 @@ use rand::Rng;
 
 use openssl::symm;
 use rustc_serialize::hex::ToHex;
-use secp256k1::key::SecretKey;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Account {

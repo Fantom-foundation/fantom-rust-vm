@@ -4,8 +4,13 @@ version = "0.1.0"
 authors = ["Fletcher Haynes <fletcher@capitalprawn.com>"]
 
 [dependencies]
-rlp = "0.3.0"
+fvm = { path = "../fvm" }
 etcommon-trie = "0.4.0"
 etcommon-bigint = "0.2.10"
+etcommon-bloom = "0.2"
+etcommon-rlp = "0.2"
 tempdir = "0.3.7"
 rkv = "0.7.0"
+serde = "1.0.82"
+serde_json = "1.0.33"
+serde_derive = "1.0.82"

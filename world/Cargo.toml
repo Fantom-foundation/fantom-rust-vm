@@ -8,9 +8,14 @@ fvm = { path = "../fvm" }
 etcommon-trie = "0.4.0"
 etcommon-bigint = "0.2.10"
 etcommon-bloom = "0.2"
-etcommon-rlp = "0.2"
+etcommon-rlp = "0.2.4"
+etcommon-block = "0.5.1"
+ethereum_miner = { version = "0.2.9", package = "ethereum-bigint" }
 tempdir = "0.3.7"
 rkv = "0.7.0"
 serde = "1.0.82"
 serde_json = "1.0.33"
 serde_derive = "1.0.82"
+sha3 = "0.8.1"
+byteorder = "1.2.7"
+devp2p-secp256k1 = { version = "0.5.6" }

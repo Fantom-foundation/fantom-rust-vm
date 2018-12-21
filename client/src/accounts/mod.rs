@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use rand::Rng;
+use std::collections::HashMap;
 
 use openssl::symm;
 use rustc_serialize::hex::ToHex;
@@ -59,24 +59,26 @@ impl Account {
         self
     }
 
-    pub fn generate_cipher_text(generator: &mut rand::OsRng, secret_key: &secp256k1::key::SecretKey) -> (String, Vec<u8>) {
-      // This section generates the ciphertext version of the secret key
-      let cipher = symm::Cipher::aes_128_ctr();
-      let mut key: Vec<u8> = vec![];
-      let mut iv: Vec<u8> = vec![];
-      for _ in 0..16 {
-      key.push(generator.gen());
-      }
-      for _ in 0..16 {
-      iv.push(generator.gen());
-      }
+    pub fn generate_cipher_text(
+        generator: &mut rand::OsRng,
+        secret_key: &secp256k1::key::SecretKey,
+    ) -> (String, Vec<u8>) {
+        // This section generates the ciphertext version of the secret key
+        let cipher = symm::Cipher::aes_128_ctr();
+        let mut key: Vec<u8> = vec![];
+        let mut iv: Vec<u8> = vec![];
+        for _ in 0..16 {
+            key.push(generator.gen());
+        }
+        for _ in 0..16 {
+            iv.push(generator.gen());
+        }
 
-      let data: &[u8] = &secret_key[0..secret_key.len()];
-      let ciphertext = symm::encrypt(cipher, &key, Some(&iv), data).expect("Unable to encrypt secret key");
-      (ciphertext.to_hex(), iv)
+        let data: &[u8] = &secret_key[0..secret_key.len()];
+        let ciphertext = symm::encrypt(cipher, &key, Some(&iv), data).expect("Unable to encrypt secret key");
+        (ciphertext.to_hex(), iv)
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AccountCrypto {

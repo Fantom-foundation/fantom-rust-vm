@@ -1,4 +1,4 @@
-use bigint::{Address, Gas, B256, H256, H64, U256};
+use bigint::{Gas, H256};
 use bloom::LogsBloom;
 use fvm::eth_log::Log;
 use rlp::{Decodable, DecoderError, Encodable, RlpStream, UntrustedRlp};

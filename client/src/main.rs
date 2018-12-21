@@ -19,6 +19,7 @@ extern crate bigint;
 extern crate block;
 extern crate byteorder;
 extern crate chrono;
+extern crate ethash;
 extern crate hmac;
 extern crate mac;
 extern crate pbkdf2;
@@ -37,6 +38,7 @@ use clap::App;
 use rand::os::OsRng;
 use rand::Rng;
 use std::path::PathBuf;
+use std::thread;
 
 use std::io::prelude::*;
 
@@ -49,8 +51,6 @@ use rustc_serialize::hex::ToHex;
 pub mod accounts;
 pub mod keys;
 pub mod servers;
-
-use openssl::symm;
 
 use std::fs::File;
 use std::str;
@@ -76,7 +76,7 @@ pub fn main() {
     debug!("Checking for genesis block...");
     if genesis_block_exists(base_dir) {
         debug!("Genesis block exists!");
-        let genesis_block_data = load_genesis_block(base_dir).expect("Unable to load genesis block");
+        let _genesis_block_data = load_genesis_block(base_dir).expect("Unable to load genesis block");
     } else {
         debug!("Genesis block does not exist, please create it.");
     }
@@ -172,8 +172,11 @@ pub fn main() {
 
     info!("Opening DB...");
     match world::db::create_persistent_db(&(base_dir.to_string() + "data/"), "fantom") {
-        Ok((rdb, store)) => {
+        Ok((rdb, _store)) => {
             info!("Created: {:?}", rdb);
+            thread::spawn(move || {
+                let _miner = world::consensus::miner::Miner::new();
+            });
         }
         Err(e) => {
             error!("Could not create database: {:?}", e);
@@ -181,6 +184,7 @@ pub fn main() {
         }
     }
     servers::web::start_web();
+
     println!("Gooodbye!");
     exit(0);
 }
@@ -192,6 +196,7 @@ fn create_directories(path: &str) -> Result<(), io::Error> {
     create_lachesis_directory(path)?;
     create_data_directory(path)?;
     create_keys_directory(path)?;
+    create_chaindata_directory(path)?;
     Ok(())
 }
 
@@ -224,6 +229,11 @@ fn create_lachesis_directory(path: &str) -> Result<(), io::Error> {
     Ok(())
 }
 
+fn create_chaindata_directory(path: &str) -> Result<(), io::Error> {
+    fs::create_dir_all(path.to_string() + "chaindata")?;
+    Ok(())
+}
+
 fn genesis_block_exists(path: &str) -> bool {
     let genesis_block_path = path.to_string() + "/eth/genesis.json";
     std::path::Path::new(&genesis_block_path).exists()
@@ -235,8 +245,8 @@ fn load_genesis_block(path: &str) -> Result<Vec<u8>, std::io::Error> {
         Ok(mut fh) => {
             let mut buf: Vec<u8> = vec![];
             match fh.read_to_end(&mut buf) {
-                Ok(bytes) => info!("Read genesis block!"),
-                Err(e) => error!("Unable to read genesis block"),
+                Ok(_bytes) => info!("Read genesis block!"),
+                Err(_e) => error!("Unable to read genesis block"),
             };
             Ok(buf)
         }
@@ -246,4 +256,8 @@ fn load_genesis_block(path: &str) -> Result<Vec<u8>, std::io::Error> {
 
 fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {
     std::path::PathBuf::from(base_dir.to_string() + &filename)
+}
+
+fn chain_data_path(base_dir: &str) -> PathBuf {
+    std::path::PathBuf::from(base_dir.to_string() + "chaindata")
 }

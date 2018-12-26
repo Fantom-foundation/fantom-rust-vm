@@ -56,19 +56,15 @@ mod tests {
     fn create_new_blockchain() {
         let tmp_db = create_temporary_db().expect("Unable to create temporary DB");
         let genesis_block = load_test_genesis_block();
-        println!("Starting mining. Difficulty is: {:?}", genesis_block.difficulty);
         let mut test_chain = BlockChain::new_from_genesis(tmp_db.0, genesis_block);
-        let result = test_chain.mine();
-        println!("Result is: {:?}", result);
     }
 
     #[test]
+    #[ignore]
     fn save_blockchain() {
         let tmp_db = create_temporary_db().expect("Unable to create temporary DB");
         let genesis_block = load_test_genesis_block();
         let mut test_chain = BlockChain::new_from_genesis(tmp_db.0, genesis_block);
-        println!("Starting mining");
-        let result = test_chain.mine();
-        println!("Done mining!");
+        let _ = test_chain.mine();
     }
 }

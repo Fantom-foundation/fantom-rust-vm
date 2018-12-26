@@ -62,14 +62,11 @@ pub fn make_cache(cache: &mut [u8], seed: H256) {
     assert!(cache.len() % HASH_BYTES == 0);
     let n = cache.len() / HASH_BYTES;
     fill_sha512(&seed, cache, 0);
-
-    println!("Round 1");
     for i in 1..n {
         let (last, next) = cache.split_at_mut(i * 64);
         fill_sha512(&last[(last.len() - 64)..], next, 0);
     }
 
-    println!("Starting cache rounds: {:?}", CACHE_ROUNDS);
     for _ in 0..CACHE_ROUNDS {
         for i in 0..n {
             let v = ((&cache[(i * 64)..]).read_u32::<LittleEndian>().unwrap() as usize) % n;
@@ -166,11 +163,7 @@ pub fn calc_dataset_item(cache: &[u8], i: usize) -> H512 {
 /// Make an Ethash dataset using the given hash.
 pub fn make_dataset(dataset: &mut [u8], cache: &[u8]) {
     let n = dataset.len() / HASH_BYTES;
-    println!("Making dataset. Have {:?} rounds", n);
     for i in 0..n {
-        if i % 1000 == 0 {
-            println!("On round: {:?}", i);
-        }
         let z = calc_dataset_item(cache, i);
         for j in 0..64 {
             dataset[i * 64 + j] = z[j];

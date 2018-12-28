@@ -1,6 +1,8 @@
 use bigint_miner;
 use block;
 use consensus::ethash;
+
+#[derive(Default)]
 pub struct Miner;
 
 impl Miner {
@@ -26,7 +28,7 @@ impl Miner {
         let difficulty = bigint_miner::U256::from(diff);
         println!("Mining difficulty is: {:?}", difficulty);
         ethash::mine(
-            header.clone(),
+            header,
             full_size,
             &dataset,
             bigint_miner::H64::random(),

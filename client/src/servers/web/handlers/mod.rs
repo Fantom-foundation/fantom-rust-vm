@@ -50,10 +50,10 @@ pub fn get_tx(tx_hash: String) -> String {
 
 #[get("/info")]
 pub fn info() -> String {
-    "OK".to_string().into()
+    "OK".to_string()
 }
 
 #[get("/html/info")]
 pub fn html_info() -> String {
-    "OK".to_string().into()
+    "OK".to_string()
 }

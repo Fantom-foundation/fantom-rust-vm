@@ -33,7 +33,7 @@ impl<'a> From<&'a str> for Password {
 
 impl ToString for Password {
     fn to_string(&self) -> String {
-        String::from(self.0.clone())
+        self.0.clone()
     }
 }
 
@@ -59,7 +59,7 @@ pub fn generate_random_keypair() -> Result<(SecretKey, PublicKey), Error> {
 
 pub fn get_passphrase() -> Result<Password, String> {
     use rpassword::read_password;
-    const STDIN_ERROR: &'static str = "Unable to ask for password on non-interactive terminal.";
+    const STDIN_ERROR: &str = "Unable to ask for password on non-interactive terminal.";
     print!("Enter passphrase: ");
     let _ = io::stdout().flush();
 

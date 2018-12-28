@@ -45,7 +45,7 @@ impl DB {
     pub fn new_temporary(root: H256) -> DB {
         let (rkv, store) = create_temporary_db().unwrap();
         DB {
-            root: root,
+            root,
             handle: rkv,
             database: store,
         }
@@ -54,7 +54,7 @@ impl DB {
     pub fn new_persistent(path: &str, name: &str, root: H256) -> DB {
         let (rkv, store) = create_persistent_db(path, name).unwrap();
         DB {
-            root: root,
+            root,
             handle: rkv,
             database: store,
         }

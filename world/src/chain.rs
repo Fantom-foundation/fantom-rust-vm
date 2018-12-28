@@ -35,6 +35,10 @@ impl BlockChain {
         self.current_block
     }
 
+    pub fn num_blocks(&self) -> usize {
+        self.blocks.len()
+    }
+
     pub fn start(&mut self) {
 
     }

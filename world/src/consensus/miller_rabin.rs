@@ -1,5 +1,7 @@
 // Derived from https://github.com/huonw/primal/blob/master/primal-check/src/is_prime.rs
 
+#![allow(clippy::many_single_char_names)]
+
 #[derive(Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Debug)]
 struct U128 {
     hi: usize,
@@ -87,19 +89,19 @@ fn mod_exp(mut x: usize, mut d: usize, n: usize) -> usize {
 }
 
 pub fn is_prime(n: usize) -> bool {
-    const HINT: &'static [usize] = &[2];
+    const HINT: &[usize] = &[2];
 
     // we have a strict upper bound, so we can just use the witness
     // table of Pomerance, Selfridge & Wagstaff and Jeaschke to be as
     // efficient as possible, without having to fall back to
     // randomness.
-    const WITNESSES: &'static [(usize, &'static [usize])] = &[
+    const WITNESSES: &[(usize, &[usize])] = &[
         (2_046, HINT),
         (1_373_652, &[2, 3]),
         (9_080_190, &[31, 73]),
         (25_326_000, &[2, 3, 5]),
         (4_759_123_140, &[2, 7, 61]),
-        (1_112_004_669_632, &[2, 13, 23, 1662803]),
+        (1_112_004_669_632, &[2, 13, 23, 1_662_803]),
         (2_152_302_898_746, &[2, 3, 5, 7, 11]),
         (3_474_749_660_382, &[2, 3, 5, 7, 11, 13]),
         (341_550_071_728_320, &[2, 3, 5, 7, 11, 13, 17]),

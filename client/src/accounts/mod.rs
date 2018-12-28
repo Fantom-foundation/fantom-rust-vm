@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use openssl::symm;
 use rustc_serialize::hex::ToHex;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Account {
     address: String,
     id: String,
@@ -13,14 +13,14 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(id: String, address: String, version: usize) -> Account {
+    pub fn new(id: String, address: &str, version: usize) -> Account {
         let end = address.len();
         let start = end - 40;
         Account {
             address: address[start..end].to_string(),
             crypto: AccountCrypto::new(),
-            id: id,
-            version: version,
+            id,
+            version
         }
     }
 
@@ -80,7 +80,7 @@ impl Account {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct AccountCrypto {
     cipher: Option<String>,
     ciphertext: Option<String>,
@@ -103,7 +103,7 @@ impl AccountCrypto {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct AccountKDFParams {
     dklen: Option<usize>,
     prf: Option<String>,

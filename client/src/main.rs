@@ -1,62 +1,59 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate clap;
-extern crate fvm;
-extern crate secp256k1;
-#[macro_use]
-extern crate log;
-extern crate env_logger;
-extern crate openssl;
-extern crate rand;
-extern crate rpassword;
-extern crate uuid;
-#[macro_use]
-extern crate serde_derive;
 extern crate base64;
 extern crate bigint;
 extern crate block;
 extern crate byteorder;
 extern crate chrono;
+#[macro_use]
+extern crate clap;
+extern crate env_logger;
 extern crate ethash;
+extern crate fvm;
 extern crate hmac;
+#[macro_use]
+extern crate log;
 extern crate mac;
+extern crate openssl;
 extern crate pbkdf2;
+extern crate rand;
 extern crate rlp;
+#[macro_use]
+extern crate rocket;
+extern crate rpassword;
 extern crate rustc_serialize;
+extern crate secp256k1;
 extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 extern crate sha2;
 extern crate sha3;
+extern crate uuid;
 extern crate world;
 
-use std::process::exit;
 use std::{fs, io};
-
-use clap::App;
-use rand::os::OsRng;
-use rand::Rng;
+use std::fs::File;
+use std::io::prelude::*;
 use std::path::PathBuf;
+use std::process::exit;
+use std::str;
 use std::thread;
 
-use std::io::prelude::*;
-
+use clap::App;
 use hmac::Hmac;
+use rand::os::OsRng;
+use rand::Rng;
+use rustc_serialize::hex::ToHex;
 use sha2::Sha256;
 use sha3::{Digest, Keccak256};
-
-use rustc_serialize::hex::ToHex;
 
 pub mod accounts;
 pub mod keys;
 pub mod servers;
 
-use std::fs::File;
-use std::str;
-
 type HmacSha256 = Hmac<Sha256>;
 
+#[allow(clippy::cyclomatic_complexity)]
 pub fn main() {
     env_logger::init();
 
@@ -84,7 +81,7 @@ pub fn main() {
     // This handles the user wanting to do account-related functions
     if let Some(account_matches) = matches.subcommand_matches("account") {
         // This handles the user wanting to create a new account
-        if let Some(_) = account_matches.subcommand_matches("new") {
+        if account_matches.subcommand_matches("new").is_some() {
             debug!("Creating new account");
             // This is the passphrase we'll use to encrypt their secret key, and they will need to
             // provide to decrypt it
@@ -117,7 +114,7 @@ pub fn main() {
                     let mac: &[u8] = &hasher.result();
                     let mac = mac.to_hex();
                     let mut new_account =
-                        accounts::Account::new(account_id.to_hyphenated().to_string(), address.to_string(), 3);
+                        accounts::Account::new(account_id.to_hyphenated().to_string(), &address.to_string(), 3);
                     new_account = new_account
                         .with_cipher("aes-128-ctr".to_string())
                         .with_ciphertext(ciphertext.to_string())
@@ -255,7 +252,7 @@ fn load_genesis_block(path: &str) -> Result<Vec<u8>, std::io::Error> {
 }
 
 fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {
-    std::path::PathBuf::from(base_dir.to_string() + &filename)
+    std::path::PathBuf::from(base_dir.to_string() + filename)
 }
 
 fn chain_data_path(base_dir: &str) -> PathBuf {

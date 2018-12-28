@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(clippy::many_single_char_names)]
 
 use bigint_miner::{H256, H512, H64, U256};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
@@ -7,11 +8,11 @@ use std::ops::BitXor;
 
 use super::miller_rabin::is_prime;
 
-const DATASET_BYTES_INIT: usize = 1073741824; // 2 to the power of 30.
-const DATASET_BYTES_GROWTH: usize = 8388608; // 2 to the power of 23.
-const CACHE_BYTES_INIT: usize = 16777216; // 2 to the power of 24.
-const CACHE_BYTES_GROWTH: usize = 131072; // 2 to the power of 17.
-//const CACHE_MULTIPLIER: usize = 1024;
+const DATASET_BYTES_INIT: usize = 1_073_741_824; // 2 to the power of 30.
+const DATASET_BYTES_GROWTH: usize = 8_388_608; // 2 to the power of 23.
+const CACHE_BYTES_INIT: usize = 16_777_216; // 2 to the power of 24.
+const CACHE_BYTES_GROWTH: usize = 131_072; // 2 to the power of 17.
+const CACHE_MULTIPLIER: usize = 1024;
 const MIX_BYTES: usize = 128;
 const WORD_BYTES: usize = 4;
 const HASH_BYTES: usize = 64;
@@ -81,12 +82,12 @@ pub fn make_cache(cache: &mut [u8], seed: H256) {
     }
 }
 
-const FNV_PRIME: u32 = 0x01000193;
+const FNV_PRIME: u32 = 0x0100_0193;
 fn fnv(v1: u32, v2: u32) -> u32 {
-    let v1 = v1 as u64;
-    let v2 = v2 as u64;
+    let v1 = u64::from(v1);
+    let v2 = u64::from(v2);
 
-    ((((v1 * 0x01000000 | 0) + (v1 * 0x193 | 0)) ^ v2) >> 0) as u32
+    ( (v1 * 0x0100_0000) | (v1 * 0x193) | v2) as u32
 }
 
 fn fnv64(a: [u8; 64], b: [u8; 64]) -> [u8; 64] {
@@ -121,7 +122,7 @@ fn fnv128(a: [u8; 128], b: [u8; 128]) -> [u8; 128] {
 
 fn u8s_to_u32(a: &[u8]) -> u32 {
     let _n = a.len();
-    (a[0] as u32) + (a[1] as u32) << 8 + (a[2] as u32) << 16 + (a[3] as u32) << 24
+    (u32::from(a[0]) + u32::from(a[1])) << (8 + u32::from(a[2]))
 }
 
 /// Calculate the dataset item.
@@ -138,9 +139,7 @@ pub fn calc_dataset_item(cache: &[u8], i: usize) -> H512 {
     let _ = mix.as_mut().write_u32::<LittleEndian>(mix_first32);
     {
         let mut remix = [0u8; 64];
-        for j in 0..64 {
-            remix[j] = mix[j];
-        }
+        remix[..64].clone_from_slice(&mix[..64]);
         fill_sha512(&remix, &mut mix, 0);
     }
     for j in 0..DATASET_PARENTS {
@@ -263,14 +262,14 @@ pub fn cross_boundary(val: U256) -> U256 {
 /// Mine a nonce given the header, dataset, and the target. Target is derived
 /// from the difficulty.
 pub fn mine(
-    header: block::Header,
+    header: &block::Header,
     full_size: usize,
     dataset: &[u8],
     nonce_start: H64,
     difficulty: U256,
 ) -> (H64, H256) {
     let target = cross_boundary(difficulty);
-    let header = rlp::encode(&header).to_vec();
+    let header = rlp::encode(header).to_vec();
 
     let mut nonce_current = nonce_start;
     loop {
@@ -296,6 +295,7 @@ pub fn mine(
 }
 
 /// Get the seedhash for a given block number.
+#[allow(clippy::clone_on_copy)]
 pub fn get_seedhash(epoch: usize) -> H256 {
     let mut s = [0u8; 32];
     for _i in 0..epoch {

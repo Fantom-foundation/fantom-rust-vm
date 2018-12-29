@@ -1,9 +1,9 @@
 //! Contains the base BlockChain structure
 use bigint;
+use block::Block;
 use blocks::genesis::Genesis;
 use consensus::miner::Miner;
 use db::RDB;
-use block::Block;
 
 /// Core data structure that contains the Blocks that make up the chain
 pub struct BlockChain {
@@ -12,7 +12,7 @@ pub struct BlockChain {
     genesis_block: Box<Genesis>,
     pub miner: Miner,
     current_block: bigint::U256,
-    blocks: Vec<Block>
+    blocks: Vec<Block>,
 }
 
 impl BlockChain {
@@ -39,16 +39,14 @@ impl BlockChain {
         self.blocks.len()
     }
 
-    pub fn start(&mut self) {
-
-    }
+    pub fn start(&mut self) {}
 }
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use super::{BlockChain, Genesis};
     use db::create_temporary_db;
+    use std::path::PathBuf;
 
     fn load_test_genesis_block() -> Box<Genesis> {
         let path = PathBuf::from("../templates/genesis.json");

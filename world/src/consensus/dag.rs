@@ -7,7 +7,6 @@ pub trait Patch {
     fn epoch_length() -> U256;
 }
 
-
 pub struct EthereumPatch;
 impl Patch for EthereumPatch {
     fn epoch_length() -> U256 {

@@ -20,8 +20,12 @@ impl Account {
             address: address[start..end].to_string(),
             crypto: AccountCrypto::new(),
             id,
-            version
+            version,
         }
+    }
+
+    pub fn get_id(&self) -> String {
+        self.id.clone()
     }
 
     pub fn with_cipher(mut self, cipher: String) -> Account {

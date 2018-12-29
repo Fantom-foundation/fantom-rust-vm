@@ -19,7 +19,10 @@ impl Miner {
         let mut cache: Vec<u8> = vec![0; cache_size];
         println!("Getting seed");
         let seed = ethash::get_seedhash(epoch);
-        println!("Making cache and dataset. Cache is: {:?}. Dataset is {:?}", cache_size, full_size);
+        println!(
+            "Making cache and dataset. Cache is: {:?}. Dataset is {:?}",
+            cache_size, full_size
+        );
         ethash::make_cache(&mut cache, seed);
         println!("Cache done");
         ethash::make_dataset(&mut dataset, &cache);
@@ -27,16 +30,9 @@ impl Miner {
         let diff = header.difficulty.as_u32();
         let difficulty = bigint_miner::U256::from(diff);
         println!("Mining difficulty is: {:?}", difficulty);
-        ethash::mine(
-            header,
-            full_size,
-            &dataset,
-            bigint_miner::H64::random(),
-            difficulty,
-        )
+        ethash::mine(header, full_size, &dataset, bigint_miner::H64::random(), difficulty)
     }
 }
 
 #[cfg(test)]
-mod tests {
-}
+mod tests {}

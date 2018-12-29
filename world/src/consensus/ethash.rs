@@ -87,7 +87,7 @@ fn fnv(v1: u32, v2: u32) -> u32 {
     let v1 = u64::from(v1);
     let v2 = u64::from(v2);
 
-    ( (v1 * 0x0100_0000) | (v1 * 0x193) | v2) as u32
+    ((v1 * 0x0100_0000) | (v1 * 0x193) | v2) as u32
 }
 
 fn fnv64(a: [u8; 64], b: [u8; 64]) -> [u8; 64] {
@@ -305,5 +305,4 @@ pub fn get_seedhash(epoch: usize) -> H256 {
 }
 
 #[cfg(test)]
-mod tests {
-}
+mod tests {}

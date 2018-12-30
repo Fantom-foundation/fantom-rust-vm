@@ -31,18 +31,15 @@ extern crate sha3;
 extern crate uuid;
 extern crate world;
 
-use std::{fs, io};
-use std::fs::File;
+use std::{fs, fs::File, io};
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::process::exit;
-use std::str;
-use std::thread;
+use std::{str, thread};
 
 use clap::App;
 use hmac::Hmac;
-use rand::os::OsRng;
-use rand::Rng;
+use rand::{os::OsRng, Rng};
 use rustc_serialize::hex::ToHex;
 use secp256k1::key::{PublicKey};
 use sha2::Sha256;
@@ -54,6 +51,7 @@ pub mod servers;
 
 type HmacSha256 = Hmac<Sha256>;
 
+const DIRECTORIES: [&'static str; 6] = ["data", "raft", "eth", "lachesis", "keys", "chaindata"];
 pub fn main() {
     env_logger::init();
 
@@ -136,9 +134,8 @@ pub fn main() {
             exit(1);
         }
     }
-    servers::web::start_web();
 
-    println!("Gooodbye!");
+    servers::web::start_web();
     exit(0);
 }
 
@@ -193,47 +190,26 @@ fn account_from_passphrase(account_id: uuid::Uuid, iv: &[u8], ciphertext: &str, 
 
 fn create_directories(path: &str) -> Result<(), io::Error> {
     debug!("Creating data directories from base: {:?}", path);
-    create_raft_directory(path)?;
-    create_eth_directory(path)?;
-    create_lachesis_directory(path)?;
-    create_data_directory(path)?;
-    create_keys_directory(path)?;
-    create_chaindata_directory(path)?;
+    for dir_name in &DIRECTORIES {
+        match create_directory(path, dir_name) {
+            Ok(_) => {
+                debug!("Directory {:?} created", dir_name);
+            },
+            Err(e) => {
+                error!("Error creating directory {:?}. Error was: {:?}", dir_name, e);
+            }
+        }
+    }
     Ok(())
 }
 
-fn create_data_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "data")?;
+fn create_directory(path: &str, end: &str) -> Result<(), io::Error> {
+    fs::create_dir_all(path.to_string() + end)?;
     Ok(())
 }
 
 fn data_directory(path: &str) -> PathBuf {
     PathBuf::from(path.to_string() + "data")
-}
-
-fn create_keys_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "keys")?;
-    Ok(())
-}
-
-fn create_raft_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "raft")?;
-    Ok(())
-}
-
-fn create_eth_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "eth")?;
-    Ok(())
-}
-
-fn create_lachesis_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "lachesis")?;
-    Ok(())
-}
-
-fn create_chaindata_directory(path: &str) -> Result<(), io::Error> {
-    fs::create_dir_all(path.to_string() + "chaindata")?;
-    Ok(())
 }
 
 fn genesis_block_exists(path: &str) -> bool {

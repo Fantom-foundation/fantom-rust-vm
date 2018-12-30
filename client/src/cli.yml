@@ -41,7 +41,7 @@ args:
         short: m
         help: Determines if the client is mining or not
         takes_value: true
-        default_value: false
+        default_value: "false"
     
 
 subcommands:

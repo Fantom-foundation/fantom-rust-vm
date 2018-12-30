@@ -1,42 +1,46 @@
 use rand::os::OsRng;
-use std::io;
-use std::io::Write;
-use std::io::{BufRead, BufReader};
-
+use rpassword::read_password;
+use std::{io, io::Write, io::BufRead, io::BufReader};
 use secp256k1;
 use secp256k1::key::{PublicKey, SecretKey};
 use secp256k1::Error;
-use std::fmt;
-use std::fs::File;
+use std::{fmt, fs::File};
 use std::string::ToString;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Wrapper type around a String to represent a password
 pub struct Password(String);
 
 impl fmt::Debug for Password {
+    /// We do not want to potentially print out passwords in logs, so we implement `fmt` here
+    /// such that it obfuscates it
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Password(******)")
     }
 }
 
+/// Converts a String into a Password
 impl From<String> for Password {
     fn from(s: String) -> Password {
         Password(s)
     }
 }
 
+/// Converts a &str into a Password
 impl<'a> From<&'a str> for Password {
     fn from(s: &'a str) -> Password {
         Password::from(String::from(s))
     }
 }
 
+/// Converts a Password back into a String
 impl ToString for Password {
     fn to_string(&self) -> String {
         self.0.clone()
     }
 }
 
+/// So we can get the password as bytes or as a str
 impl Password {
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
@@ -47,6 +51,7 @@ impl Password {
     }
 }
 
+/// This generates a random public/private keypair, and is used when creating a new account.
 pub fn generate_random_keypair() -> Result<(SecretKey, PublicKey), Error> {
     let context_flag = secp256k1::ContextFlag::Full;
     let context = secp256k1::Secp256k1::with_caps(context_flag);
@@ -57,19 +62,16 @@ pub fn generate_random_keypair() -> Result<(SecretKey, PublicKey), Error> {
     }
 }
 
+/// Prompts the user for a passphrase. They will have to enter this to do anything with
+/// their account.
 pub fn get_passphrase() -> Result<Password, String> {
-    use rpassword::read_password;
     const STDIN_ERROR: &str = "Unable to ask for password on non-interactive terminal.";
-    print!("Enter passphrase: ");
-    let _ = io::stdout().flush();
-
+    print!("Enter password: ");
+    io::stdout().flush().map_err(|_| "Error flushing stdout".to_owned())?;
     let password = read_password().map_err(|_| STDIN_ERROR.to_owned())?.into();
-
     print!("Repeat password: ");
-    let _ = io::stdout().flush();
-
+    io::stdout().flush().map_err(|_| "Error flushing stdout".to_owned())?;
     let password_repeat = read_password().map_err(|_| STDIN_ERROR.to_owned())?.into();
-
     if password != password_repeat {
         return Err("Passwords do not match!".into());
     }

@@ -41,7 +41,6 @@ use clap::App;
 use hmac::Hmac;
 use rand::{os::OsRng, Rng};
 use rustc_serialize::hex::ToHex;
-use secp256k1::key::{PublicKey};
 use sha2::Sha256;
 use sha3::{Digest, Keccak256};
 
@@ -88,11 +87,11 @@ pub fn main() {
                     let mut generator = OsRng::new().expect("Unable to generate OsRng");
                     let account_id = uuid::Uuid::new_v4();
                     let (ciphertext, iv) = accounts::Account::generate_cipher_text(&mut generator, &secret_key);
-                    let address = get_address(public_key);
+                    let address = accounts::Account::get_address(public_key);
                     let new_account = account_from_passphrase(account_id, &iv, &ciphertext, &address);
                     let account_json = serde_json::to_string(&new_account).unwrap();
                     let filename = get_account_filename(&new_account);
-                    let path = key_file_path(base_dir, &filename);
+                    let path = accounts::Account::key_file_path(base_dir, &filename);
                     debug!("Path is: {:#?}", path);
                     match File::create(path) {
                         Ok(mut fh) => {
@@ -137,12 +136,6 @@ pub fn main() {
 
     servers::web::start_web();
     exit(0);
-}
-
-fn get_address(public_key: PublicKey) -> String {
-    let context_flag = secp256k1::ContextFlag::Full;
-    let context = secp256k1::Secp256k1::with_caps(context_flag);
-    public_key.serialize_vec(&context, false).to_hex()
 }
 
 fn get_account_filename(account_id: &accounts::Account) -> String {
@@ -230,10 +223,6 @@ fn load_genesis_block(path: &str) -> Result<Vec<u8>, std::io::Error> {
         }
         Err(e) => Err(e),
     }
-}
-
-fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {
-    std::path::PathBuf::from(base_dir.to_string() + filename)
 }
 
 fn chain_data_path(base_dir: &str) -> PathBuf {

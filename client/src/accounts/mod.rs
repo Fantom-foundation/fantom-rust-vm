@@ -1,8 +1,11 @@
 //! Contains functionality related to dealing with Accounts
 
+use std::{fmt, error::Error};
+use std::fs::File;
+use std::path::PathBuf;
 use rand::Rng;
 use std::collections::HashMap;
-
+use secp256k1::key::{PublicKey};
 use openssl::symm;
 use rustc_serialize::hex::ToHex;
 
@@ -79,10 +82,7 @@ impl Account {
     }
 
     /// Generates the ciphertext version of the secret key
-    pub fn generate_cipher_text(
-        generator: &mut rand::OsRng,
-        secret_key: &secp256k1::key::SecretKey,
-    ) -> (String, Vec<u8>) {
+    pub fn generate_cipher_text(generator: &mut rand::OsRng, secret_key: &secp256k1::key::SecretKey) -> (String, Vec<u8>) {
         // This section generates the ciphertext version of the secret key
         let cipher = symm::Cipher::aes_128_ctr();
         let mut key: Vec<u8> = vec![];
@@ -97,16 +97,47 @@ impl Account {
         // Return the hex and iv
         (ciphertext.to_hex(), iv)
     }
+
+    /// Saves an account to a file in JSON format
+    pub fn save(&self, base_dir: &str, filename: &str) -> Result<(), Box<Error>> {
+        let path = std::path::PathBuf::from(base_dir.to_string() + filename);
+        match File::create(path) {
+            Ok(_) => {
+                Ok(())
+            },
+            Err(e) => {
+                return Err(Box::new(AccountError::new("There was an error saving")));
+            }
+        }
+    }
+
+    /// Gets the address of the account
+    pub fn get_address(public_key: PublicKey) -> String {
+        let context_flag = secp256k1::ContextFlag::Full;
+        let context = secp256k1::Secp256k1::with_caps(context_flag);
+        public_key.serialize_vec(&context, false).to_hex()
+    }
+
+    /// Gets the path to the keyfile for an account
+    pub fn key_file_path(base_dir: &str, filename: &str) -> PathBuf {
+        std::path::PathBuf::from(base_dir.to_string() + filename)
+    }
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 /// Contains parameters specifically for cryptographic functions
 pub struct AccountCrypto {
+    // Name of the cipher algorithm
     cipher: Option<String>,
+    // The ciphered text
     ciphertext: Option<String>,
+    // The parameters given to the cipher algorithm
     cipherparams: HashMap<String, String>,
+    // The key derivation function
     kdf: Option<String>,
+    // Parameters for the KDF
     kdfparams: AccountKDFParams,
+    // Mac for the cipher text
     mac: Option<String>,
 }
 
@@ -148,5 +179,60 @@ impl AccountKDFParams {
             r: None,
             salt: None,
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct AccountError {
+    details: String
+}
+
+impl AccountError {
+    fn new(msg: &str) -> AccountError {
+        AccountError{details: msg.to_string()}
+    }
+}
+
+impl fmt::Display for AccountError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{}", self.details)
+    }
+}
+
+impl Error for AccountError {
+    fn description(&self) -> &str {
+        &self.details
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use keys;
+    use rand::OsRng;
+    use rand::Rng;
+    #[test]
+    fn create_kdf_params() {
+        let test_params = AccountKDFParams::new();
+        assert_eq!(test_params.dklen, None);
+    }
+
+    #[test]
+    fn create_account_crypto() {
+        let test_crypto = AccountCrypto::new();
+        assert!(test_crypto.cipher.is_none());
+    }
+
+    #[test]
+    fn create_account() {
+        let mut generator = OsRng::new().expect("Unable to generate OsRng");
+        let tmp_id = uuid::Uuid::new_v4();
+        let (s, p) = keys::generate_random_keypair().unwrap();
+        let (ciphertext, iv) = Account::generate_cipher_text(&mut generator, &s);
+        let tmp_address = Account::get_address(p);
+        let test_account = Account::new(tmp_id.to_string(), &tmp_address, 3);
+        let test_account_json = serde_json::to_string(&test_account);
+        assert!(test_account_json.is_ok());
     }
 }

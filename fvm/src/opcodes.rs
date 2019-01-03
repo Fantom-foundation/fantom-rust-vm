@@ -1,6 +1,7 @@
 type Gas = u32;
 
-/// Opcodes supported by the Ethereum VM. https://github.com/trailofbits/evm-opcodes is a good reference for them.
+/// Opcodes supported by the Ethereum VM. https://github.com/trailofbits/evm-opcodes is a good
+/// reference for them.
 #[derive(PartialEq, Hash, Debug)]
 pub enum Opcode {
     STOP,
@@ -73,6 +74,7 @@ pub enum Opcode {
     DELEGATECALL,
 }
 
+// Converts a byte into an Opcode for convenience
 impl<'a> From<&'a u8> for Opcode {
     fn from(bytes: &u8) -> Self {
         match bytes {

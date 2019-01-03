@@ -12,6 +12,7 @@ pub struct Log {
 }
 
 impl Log {
+    /// Creates and returns a new Log entry
     pub fn new(address: Address) -> Log {
         Log {
             address: address,
@@ -21,6 +22,7 @@ impl Log {
     }
 }
 
+/// Implements rlp::Encodable so we can write it to the DB
 impl Encodable for Log {
     fn rlp_append(&self, s: &mut RlpStream) {
         s.begin_list(3);
@@ -30,6 +32,7 @@ impl Encodable for Log {
     }
 }
 
+/// Implements rlp::Decodable so we can read it from the DB
 impl Decodable for Log {
     fn decode(rlp: &UntrustedRlp) -> Result<Self, DecoderError> {
         Ok(Self {

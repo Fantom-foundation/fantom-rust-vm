@@ -1,28 +1,43 @@
 //! Module for the volatile memory that is cleared between transactions
+
 use bigint::{M256, U256};
 use errors::*;
 
-/// A volatile area of memory that is created per-transaction. The follow constraints must be observed when interacting with it:
+/// A volatile area of memory that is created per-transaction. The following constraints must be
+/// observed when interacting with it:
 /// 1. A Read must be 256 bits
 /// 2. A Write can be 8 bits or 256 bits
 /// 3. Any expansion of the Memory area costs gas, and the cost scales quadratically
 /// 4. Expansion is done by the word, so 256-bits at a time
+
+/// Trait for all Memory systems
 pub trait Memory {
+    // Read a single u32 at index `index`
     fn read(&self, index: M256) -> M256;
+    // Read a slice of u32s starting at init_off_u of size `init_size_u`
     fn read_slice(&self, init_off_u: U256, init_size_u: U256) -> &[u8];
+    // Reads a single byte at index `index`
     fn read_byte(&self, index: M256) -> u8;
+    // Writes a single u32 at `index`
     fn write(&mut self, index: M256, value: M256) -> Result<()>;
+    // Writes a single `u8` at `index
     fn write_byte(&mut self, index: M256, value: u8) -> Result<()>;
+    // Returns the size of the memory
     fn size(&self) -> M256;
+    // Prints the contents of the memory. Mainly useful for debugging.
     fn print(&self) -> String;
+    // Copies a section of memory starting at `start` and of length `len`
     fn copy_from_memory(&self, start: U256, len: U256) -> Vec<u8>;
+
     fn copy_into_memory(&mut self, values: &[u8], start: U256, value_start: U256, len: U256);
 }
 
 /// Simple implementation of memory using Rust Vecs
 #[derive(Debug, PartialEq)]
 pub struct SimpleMemory {
+    /// Memory is represented as a simple Vector of `u8`s
     memory: Vec<u8>,
+    /// Tracks how many times we've had to expand memory
     expansions: usize,
 }
 
@@ -35,7 +50,8 @@ impl SimpleMemory {
         }
     }
 
-    // Resizes the memory vector if needed. This will be called automatically
+    // Resizes the memory vector if needed. This will be called automatically, and will increment
+    // the expansion count
     fn resize_if_needed(&mut self, index: usize) -> Result<()> {
         if index >= self.memory.len() {
             self.memory.resize(index + 1, 0);

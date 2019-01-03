@@ -1,9 +1,14 @@
+//! Module for the persistent storage usable by Accounts
+
 use bigint::{Address, M256, U256};
 use errors::StorageError;
 use std::collections::HashMap;
+
+// Convenience wrapper
 type Map<U256, M256> = HashMap<U256, M256>;
 
 #[derive(Debug, Clone)]
+/// Represents durable storage for an Account
 pub struct Storage {
     address: Address,
     storage: Map<U256, M256>,

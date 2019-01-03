@@ -1,11 +1,16 @@
+//! This module contains errors related to the Fantom VM itself
 use std::error::Error;
 use std::fmt;
 
+/// Convenience wrapper around T and a VMError
 pub type Result<T> = std::result::Result<T, VMError>;
 
 #[derive(Debug, Clone)]
+/// Errors related to the VM
 pub enum VMError {
+    // VM has encountered an unknown opcode
     UnknownOpcodeError,
+    // VM has run out of memory
     MemoryError,
 }
 
@@ -22,6 +27,7 @@ impl fmt::Display for VMError {
 }
 
 #[derive(Debug, Clone)]
+/// Errors related to Storage
 pub enum StorageError {
     CommitError,
     RequireError,

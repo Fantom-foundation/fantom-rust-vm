@@ -8,6 +8,7 @@ use memory::{Memory, SimpleMemory};
 use opcodes::Opcode;
 use storage::Storage;
 
+/// Core VM struct that executes bytecode
 pub struct VM {
     address: Option<Address>,
     registers: [M256; 1024],
@@ -40,6 +41,7 @@ impl VM {
         self
     }
 
+    /// Sets the storage of the VM. This is unique to the Address.
     pub fn with_storage(mut self, address: Address) -> VM {
         self.storage = Some(Storage::new(address));
         self
@@ -459,6 +461,8 @@ impl VM {
 impl Default for VM {
     fn default() -> VM {
         VM {
+            // In stack-based EVM implementations, the stack has a limit of 1024 items. This is why
+            // there is a limit of 1024 registers.
             registers: [0.into(); 1024],
             memory: Some(Box::new(SimpleMemory::new())),
             storage: None,

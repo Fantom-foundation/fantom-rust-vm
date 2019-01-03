@@ -1,5 +1,8 @@
+//! Contains the Gas cost for all the various Opcodes
+
 use opcodes::Opcode;
 
+/// Gets the cost for a specific Opcode. They are grouped by cost.
 pub fn get_cost(op: Opcode) -> Option<usize> {
     match op {
         Opcode::STOP => Some(0),
@@ -40,7 +43,13 @@ pub fn get_cost(op: Opcode) -> Option<usize> {
         | Opcode::DUP(_)
         | Opcode::SWAP(_) => Some(3),
 
-        Opcode::MUL | Opcode::DIV | Opcode::SDIV | Opcode::MOD | Opcode::SMOD | Opcode::SIGNEXTEND => Some(5),
+        Opcode::MUL
+        | Opcode::DIV
+        | Opcode::SDIV
+        | Opcode::MOD
+        | Opcode::SMOD
+        | Opcode::SIGNEXTEND => Some(5),
+
         Opcode::ADDMOD | Opcode::MULMOD => Some(8),
         Opcode::EXP => Some(10),
         Opcode::BLOCKHASH => Some(20),
@@ -54,5 +63,15 @@ pub fn get_cost(op: Opcode) -> Option<usize> {
         Opcode::LOG(4) => Some(1875),
 
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_add_cost() {
+        let cost = get_cost(Opcode::ADD);
+        assert_eq!(cost, 3);
     }
 }

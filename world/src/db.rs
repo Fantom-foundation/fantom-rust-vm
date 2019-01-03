@@ -1,15 +1,19 @@
-use bigint::H256;
-use tempdir::TempDir;
-use trie::TrieMut;
+//! Implements the persistent database to store tries
+//! Uses `rkv`, more info here: https://github.com/mozilla/rkv
 
 use std::fs;
 use std::path::Path;
 
 // Database imports
 use rkv::{Manager, Rkv, Store, StoreError, Value};
+use tempdir::TempDir;
+use trie::TrieMut;
+
+use bigint::H256;
 
 pub type RDB = std::sync::Arc<std::sync::RwLock<rkv::Rkv>>;
 
+/// Creates a temporary DB. Mostly useful for testing.
 pub fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     let tempdir = TempDir::new("testing").unwrap();
     let root = tempdir.path();
@@ -22,6 +26,7 @@ pub fn create_temporary_db() -> Result<(RDB, Store), StoreError> {
     Err(StoreError::DirectoryDoesNotExistError(root.into()))
 }
 
+/// Creates a persistent DB.
 pub fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), StoreError> {
     let root = path.to_string() + name + "/";
     fs::create_dir_all(root.clone())?;
@@ -35,6 +40,7 @@ pub fn create_persistent_db(path: &str, name: &str) -> Result<(RDB, Store), Stor
     Err(StoreError::DirectoryDoesNotExistError(root.into()))
 }
 
+/// Core struct that wraps an `rkv` key-value store
 pub struct DB {
     root: H256,
     handle: RDB,
@@ -42,6 +48,7 @@ pub struct DB {
 }
 
 impl DB {
+    /// Creates a new temporary DB
     pub fn new_temporary(root: H256) -> DB {
         let (rkv, store) = create_temporary_db().unwrap();
         DB {
@@ -51,6 +58,7 @@ impl DB {
         }
     }
 
+    /// Creates a new persistent DB
     pub fn new_persistent(path: &str, name: &str, root: H256) -> DB {
         let (rkv, store) = create_persistent_db(path, name).unwrap();
         DB {
@@ -61,6 +69,7 @@ impl DB {
     }
 }
 
+/// Implements the needed traits for Trie
 impl TrieMut for DB {
     fn root(&self) -> H256 {
         self.root

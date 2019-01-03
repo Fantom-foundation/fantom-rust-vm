@@ -19,3 +19,4 @@ pub mod blocks;
 pub mod chain;
 pub mod consensus;
 pub mod db;
+pub mod transactions;

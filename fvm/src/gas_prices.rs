@@ -72,6 +72,6 @@ mod tests {
 
     fn get_add_cost() {
         let cost = get_cost(Opcode::ADD);
-        assert_eq!(cost, 3);
+        assert_eq!(cost.unwrap(), 3);
     }
 }

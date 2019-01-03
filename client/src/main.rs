@@ -39,10 +39,7 @@ use std::{str, thread};
 
 use clap::App;
 use hmac::Hmac;
-use rand::{os::OsRng, Rng};
-use rustc_serialize::hex::ToHex;
 use sha2::Sha256;
-use sha3::{Digest, Keccak256};
 
 pub mod accounts;
 pub mod keys;
@@ -78,46 +75,8 @@ pub fn main() {
 
     // This handles the user wanting to do account-related functions
     if let Some(account_matches) = matches.subcommand_matches("account") {
-        // This handles the user wanting to create a new account
-        if account_matches.subcommand_matches("new").is_some() {
-            debug!("Creating new account");
-            // Generate a random public/private key
-            match keys::generate_random_keypair() {
-                Ok((secret_key, public_key)) => {
-                    let mut generator = OsRng::new().expect("Unable to generate OsRng");
-                    let account_id = uuid::Uuid::new_v4();
-                    let (ciphertext, iv) = accounts::Account::generate_cipher_text(&mut generator, &secret_key);
-                    let address = accounts::Account::get_address(public_key);
-                    let new_account = account_from_passphrase(account_id, &iv, &ciphertext, &address);
-                    let account_json = serde_json::to_string(&new_account).unwrap();
-                    let filename = get_account_filename(&new_account);
-                    let path = accounts::Account::key_file_path(base_dir, &filename);
-                    debug!("Path is: {:#?}", path);
-                    match File::create(path) {
-                        Ok(mut fh) => {
-                            match fh.write_all(account_json.as_bytes()) {
-                                Ok(_) => {
-                                    info!("Keyfile written: {}", filename);
-                                    exit(0);
-                                }
-                                Err(e) => {
-                                    error!("Error writing keyfile: {:#?}", e);
-                                    exit(1);
-                                }
-                            }
-                        },
-                        Err(e) => {
-                            error!("Error creating account file: {:#?}", e);
-                            exit(1);
-                        }
-                    }
-                }
-                Err(e) => {
-                    error!("There was an error creating a new account: {:?}", e);
-                    exit(1);
-                }
-            }
-        }
+        accounts::handler::handle_cli_command(account_matches, base_dir);
+        exit(0);
     }
 
     info!("Opening DB...");
@@ -136,49 +95,6 @@ pub fn main() {
 
     servers::web::start_web();
     exit(0);
-}
-
-fn get_account_filename(account_id: &accounts::Account) -> String {
-    let now = chrono::Utc::now();
-    "UTC--".to_string()
-        + &now.format("%Y-%m-%d").to_string()
-        + "T"
-        + &now.format("%H-%M-%SZ").to_string()
-        + "--"
-        + &account_id.get_id()
-        + ".json"
-}
-
-fn account_from_passphrase(account_id: uuid::Uuid, iv: &[u8], ciphertext: &str, address: &str) -> accounts::Account {
-    // This is the passphrase we'll use to encrypt their secret key, and they will need to
-    // provide to decrypt it
-    let mut generator = OsRng::new().expect("Unable to generate OsRng");
-    let passphrase = keys::get_passphrase();
-    let count: u32 = 64000 + rand::thread_rng().gen_range(0, 20000);
-    let salt: Vec<u8> = generator.gen_iter::<u8>().take(16).collect();
-    let passphrase = passphrase.expect("Unable to get passphrase");
-    let mut dk = [0u8; 32];
-    pbkdf2::pbkdf2::<Hmac<Sha256>>(&passphrase.as_bytes(), &salt, count as usize, &mut dk);
-    let mut bytes_to_hash: Vec<u8> = vec![];
-    bytes_to_hash.extend(&dk[16..32]);
-    bytes_to_hash.extend(ciphertext.bytes());
-    let mut hasher = Keccak256::new();
-    hasher.input(&bytes_to_hash);
-    let mac: &[u8] = &hasher.result();
-    let mac = mac.to_hex();
-    let new_account = accounts::Account::new(account_id.to_hyphenated().to_string(), &address, 3);
-    new_account
-        .with_cipher("aes-128-ctr".to_string())
-        .with_ciphertext(ciphertext.to_string())
-        .with_cipher_params(iv.to_hex())
-        .with_kdf("pbkdf2".to_string())
-        .with_pdkdf2_params(
-            dk.len(),
-            salt.to_hex().to_string(),
-            "hmac-sha256".to_string(),
-            count as usize,
-        )
-        .with_mac(mac.to_string())
 }
 
 fn create_directories(path: &str) -> Result<(), io::Error> {
